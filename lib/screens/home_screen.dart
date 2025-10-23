@@ -1,3 +1,4 @@
+// QuikTik Home Screen - Main entry point for the app
 import 'package:flutter/material.dart';
 import '../utils/app_localizations.dart';
 import '../widgets/language_selector.dart';
