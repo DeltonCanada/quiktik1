@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'confirmation_screen.dart';
 import '../utils/app_localizations.dart';
 import '../models/location_models.dart';
 import '../models/queue_models.dart';
 import '../services/queue_service.dart';
-import 'queue_number_selection_screen.dart';
 
 class PaymentScreen extends StatefulWidget {
   final Establishment establishment;
@@ -15,7 +16,6 @@ class PaymentScreen extends StatefulWidget {
 }
 
 class _PaymentScreenState extends State<PaymentScreen> {
-  final QueueService _queueService = QueueService();
   PaymentMethod _selectedMethod = PaymentMethod.creditCard;
   bool _isProcessing = false;
   final _cardNumberController = TextEditingController();
@@ -35,7 +35,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
-    final userTicketCount = _queueService.getUserTicketCountForEstablishment(widget.establishment.id);
+    final queueService = Provider.of<QueueService>(context, listen: false);
+    final userTicketCount = queueService.getUserTicketCountForEstablishment(widget.establishment.id);
     
     return Scaffold(
       appBar: AppBar(
@@ -413,15 +414,12 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }
 
   Future<void> _processPayment() async {
-    if (!_queueService.canPurchaseMoreTickets(widget.establishment.id)) {
+    final queueService = Provider.of<QueueService>(context, listen: false);
+    if (!queueService.canPurchaseMoreTickets(widget.establishment.id)) {
       final localizations = AppLocalizations.of(context)!;
       _showErrorDialog(
-        localizations.language == 'Language'
-          ? 'Maximum tickets reached'
-          : 'Nombre maximum de billets atteint',
-        localizations.language == 'Language'
-          ? 'You can only purchase up to 4 queue numbers per establishment.'
-          : 'Vous ne pouvez acheter que jusqu\'à 4 numéros de file par établissement.',
+        localizations.maxTicketsReachedTitle,
+        localizations.maxTicketsReachedBody,
       );
       return;
     }
@@ -430,37 +428,51 @@ class _PaymentScreenState extends State<PaymentScreen> {
       _isProcessing = true;
     });
 
-    // Capture localizations before async operation
     final localizations = AppLocalizations.of(context)!;
 
     try {
-      final payment = await _queueService.processPayment(
+      final payment = await queueService.processPayment(
         establishmentId: widget.establishment.id,
         method: _selectedMethod,
         amount: QueueService.queueAccessFee,
         description: 'Queue access fee for ${widget.establishment.name}',
       );
 
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => QueueNumberSelectionScreen(
-              establishment: widget.establishment,
-              payment: payment,
-            ),
-          ),
+      final queueStatus = queueService.getQueueStatus(widget.establishment.id);
+      if (queueStatus != null && queueStatus.availableNumbers.isNotEmpty) {
+        final purchasedNumber = queueStatus.availableNumbers.first;
+        
+        final ticket = await queueService.purchaseQueueNumber(
+          establishmentId: widget.establishment.id,
+          establishmentName: widget.establishment.name,
+          establishmentAddress: widget.establishment.address,
+          queueNumber: purchasedNumber,
+          paymentId: payment.id,
         );
+
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ConfirmationScreen(
+                purchasedNumber: ticket.queueNumber,
+              ),
+            ),
+          );
+        }
+      } else {
+        if (mounted) {
+          _showErrorDialog(
+            localizations.queueFullTitle,
+            localizations.queueFullBody,
+          );
+        }
       }
     } catch (e) {
       if (mounted) {
         _showErrorDialog(
-          localizations.language == 'Language'
-            ? 'Payment Failed'
-            : 'Échec du Paiement',
-          localizations.language == 'Language'
-            ? 'There was an error processing your payment. Please try again.'
-            : 'Une erreur s\'est produite lors du traitement de votre paiement. Veuillez réessayer.',
+          localizations.paymentFailedTitle,
+          localizations.paymentFailedBody,
         );
       }
     } finally {
@@ -482,7 +494,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
-              AppLocalizations.of(context)!.language == 'Language' ? 'OK' : 'OK',
+              AppLocalizations.of(context)!.ok,
             ),
           ),
         ],

@@ -4,12 +4,15 @@ import '../utils/app_localizations.dart';
 import '../widgets/language_selector.dart';
 import '../widgets/buy_ticket_widget.dart';
 import '../widgets/my_favorite_establishments_widget.dart';
+import '../widgets/favorites_counter_widget.dart';
 import 'about_screen.dart';
 import 'testimonials_screen.dart';
 import 'founder_screen.dart';
 import 'register_screen.dart';
 import 'login_screen.dart';
 import 'active_tickets_screen.dart';
+import 'favorite_widgets_demo.dart';
+import 'favorites_flow_demo.dart';
 
 class HomeScreen extends StatelessWidget {
   final Function(Locale) onLocaleChange;
@@ -24,6 +27,10 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('QuikTik'),
         actions: [
+          const Padding(
+            padding: EdgeInsets.only(right: 12.0),
+            child: FavoritesCounterWidget(),
+          ),
           Padding(
             padding: const EdgeInsets.only(right: 8.0),
             child: LanguageSelector(onLocaleChange: onLocaleChange),
@@ -78,32 +85,8 @@ class HomeScreen extends StatelessWidget {
 
             const SizedBox(height: 24),
 
-            // My Favorite Establishments Widget - TEST VERSION
-            Container(
-              width: double.infinity,
-              height: 200,
-              margin: const EdgeInsets.symmetric(vertical: 8),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.red.withValues(alpha: 0.2),
-                border: Border.all(color: Colors.red, width: 2),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Column(
-                children: [
-                  Text(
-                    'MY FAVORITE ESTABLISHMENTS - TEST',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.red,
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  Expanded(child: MyFavoriteEstablishmentsWidget()),
-                ],
-              ),
-            ),
+            // My Favorite Establishments Widget
+            const MyFavoriteEstablishmentsWidget(),
 
             const SizedBox(height: 32),
 
@@ -214,6 +197,14 @@ class HomeScreen extends StatelessWidget {
           ),
           const Divider(),
           ListTile(
+            leading: const Icon(Icons.widgets),
+            title: const Text('Favorites Widget Demo'),
+            onTap: () {
+              Navigator.pop(context);
+              _navigateToScreen(context, const FavoriteWidgetsDemo());
+            },
+          ),
+          ListTile(
             leading: const Icon(Icons.person_add_outlined),
             title: Text(localizations.signUp),
             onTap: () {
@@ -222,7 +213,15 @@ class HomeScreen extends StatelessWidget {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.login),
+            leading: const Icon(Icons.favorite_border),
+            title: const Text('Favorites Flow Demo'),
+            onTap: () {
+              Navigator.pop(context);
+              _navigateToScreen(context, const FavoritesFlowDemo());
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.widgets),
             title: Text(localizations.logIn),
             onTap: () {
               Navigator.pop(context);

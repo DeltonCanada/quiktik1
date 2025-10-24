@@ -1,8 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import '../utils/app_localizations.dart';
 import '../models/location_models.dart';
+import '../models/queue_models.dart';
 import '../services/location_data_service.dart';
 import '../services/favorites_service.dart';
+import '../services/queue_service.dart';
 import 'payment_screen.dart';
 
 class EstablishmentsScreen extends StatefulWidget {
@@ -23,20 +27,39 @@ class _EstablishmentsScreenState extends State<EstablishmentsScreen> {
   final TextEditingController _searchController = TextEditingController();
   final LocationDataService _dataService = LocationDataService();
   final FavoritesService _favoritesService = FavoritesService();
+  final QueueService _queueService = QueueService();
   List<Establishment> _filteredEstablishments = [];
   String _searchQuery = '';
+  Map<String, QueueStatus> _queueStatuses = {};
+  StreamSubscription<Map<String, QueueStatus>>? _queueSubscription;
 
   @override
   void initState() {
     super.initState();
     _filteredEstablishments = widget.city.establishments;
     _searchController.addListener(_onSearchChanged);
+
+    _queueStatuses = {
+      for (final establishment in _filteredEstablishments)
+        if (_queueService.getQueueStatus(establishment.id) != null)
+          establishment.id: _queueService.getQueueStatus(establishment.id)!,
+    };
+
+    _queueSubscription = _queueService.queueStatusStream.listen((statusMap) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _queueStatuses = Map<String, QueueStatus>.from(statusMap);
+      });
+    });
   }
 
   @override
   void dispose() {
     _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
+    _queueSubscription?.cancel();
     super.dispose();
   }
 
@@ -53,7 +76,7 @@ class _EstablishmentsScreenState extends State<EstablishmentsScreen> {
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
-    
+
     return Scaffold(
       appBar: AppBar(
         title: Text('${widget.city.name}, ${widget.provinceName}'),
@@ -86,8 +109,8 @@ class _EstablishmentsScreenState extends State<EstablishmentsScreen> {
                 const SizedBox(height: 12),
                 Text(
                   localizations.language == 'Language'
-                    ? 'QuikTik Establishments'
-                    : 'Établissements QuikTik',
+                      ? 'QuikTik Establishments'
+                      : 'Établissements QuikTik',
                   style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -98,8 +121,8 @@ class _EstablishmentsScreenState extends State<EstablishmentsScreen> {
                 const SizedBox(height: 8),
                 Text(
                   localizations.language == 'Language'
-                    ? 'Select an establishment to join the queue'
-                    : 'Sélectionnez un établissement pour rejoindre la file',
+                      ? 'Select an establishment to join the queue'
+                      : 'Sélectionnez un établissement pour rejoindre la file',
                   style: const TextStyle(
                     fontSize: 16,
                     color: Colors.white70,
@@ -109,7 +132,7 @@ class _EstablishmentsScreenState extends State<EstablishmentsScreen> {
               ],
             ),
           ),
-          
+
           // Search bar
           Container(
             padding: const EdgeInsets.all(16.0),
@@ -117,17 +140,17 @@ class _EstablishmentsScreenState extends State<EstablishmentsScreen> {
               controller: _searchController,
               decoration: InputDecoration(
                 hintText: localizations.language == 'Language'
-                  ? 'Search establishments...'
-                  : 'Rechercher des établissements...',
+                    ? 'Search establishments...'
+                    : 'Rechercher des établissements...',
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: _searchQuery.isNotEmpty
-                  ? IconButton(
-                      icon: const Icon(Icons.clear),
-                      onPressed: () {
-                        _searchController.clear();
-                      },
-                    )
-                  : null,
+                    ? IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          _searchController.clear();
+                        },
+                      )
+                    : null,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -136,7 +159,7 @@ class _EstablishmentsScreenState extends State<EstablishmentsScreen> {
               ),
             ),
           ),
-          
+
           // Results count
           if (_searchQuery.isNotEmpty)
             Padding(
@@ -145,8 +168,8 @@ class _EstablishmentsScreenState extends State<EstablishmentsScreen> {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   localizations.language == 'Language'
-                    ? '${_filteredEstablishments.length} establishments found'
-                    : '${_filteredEstablishments.length} établissements trouvés',
+                      ? '${_filteredEstablishments.length} establishments found'
+                      : '${_filteredEstablishments.length} établissements trouvés',
                   style: TextStyle(
                     color: Colors.grey[600],
                     fontSize: 12,
@@ -154,12 +177,12 @@ class _EstablishmentsScreenState extends State<EstablishmentsScreen> {
                 ),
               ),
             ),
-          
+
           // Establishments list
           Expanded(
             child: _filteredEstablishments.isEmpty
-              ? _buildEmptyState(localizations)
-              : _buildEstablishmentsList(),
+                ? _buildEmptyState(localizations)
+                : _buildEstablishmentsList(),
           ),
         ],
       ),
@@ -172,19 +195,21 @@ class _EstablishmentsScreenState extends State<EstablishmentsScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
-            _searchQuery.isNotEmpty ? Icons.search_off : Icons.business_outlined,
+            _searchQuery.isNotEmpty
+                ? Icons.search_off
+                : Icons.business_outlined,
             size: 64,
             color: Colors.grey[400],
           ),
           const SizedBox(height: 16),
           Text(
             _searchQuery.isNotEmpty
-              ? (localizations.language == 'Language'
-                  ? 'No establishments found'
-                  : 'Aucun établissement trouvé')
-              : (localizations.language == 'Language'
-                  ? 'No establishments available'
-                  : 'Aucun établissement disponible'),
+                ? (localizations.language == 'Language'
+                    ? 'No establishments found'
+                    : 'Aucun établissement trouvé')
+                : (localizations.language == 'Language'
+                    ? 'No establishments available'
+                    : 'Aucun établissement disponible'),
             style: TextStyle(
               fontSize: 18,
               color: Colors.grey[600],
@@ -194,8 +219,8 @@ class _EstablishmentsScreenState extends State<EstablishmentsScreen> {
             const SizedBox(height: 8),
             Text(
               localizations.language == 'Language'
-                ? 'Try a different search term'
-                : 'Essayez un autre terme de recherche',
+                  ? 'Try a different search term'
+                  : 'Essayez un autre terme de recherche',
               style: TextStyle(
                 fontSize: 14,
                 color: Colors.grey[500],
@@ -221,7 +246,9 @@ class _EstablishmentsScreenState extends State<EstablishmentsScreen> {
   Widget _buildEstablishmentCard(Establishment establishment) {
     final localizations = AppLocalizations.of(context)!;
     final currentLocale = Localizations.localeOf(context);
-    
+    final queueStatus = _queueStatuses[establishment.id] ??
+        _queueService.getQueueStatus(establishment.id);
+
     return Card(
       elevation: 4,
       margin: const EdgeInsets.only(bottom: 16),
@@ -270,15 +297,17 @@ class _EstablishmentsScreenState extends State<EstablishmentsScreen> {
                         : Colors.grey[600],
                   ),
                   onPressed: () {
+                    final wasAlreadyFavorite =
+                        _favoritesService.isFavorite(establishment.id);
                     setState(() {
                       _favoritesService.toggleFavorite(establishment);
                     });
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(
-                          _favoritesService.isFavorite(establishment.id)
-                              ? localizations.addToFavorites
-                              : localizations.removeFromFavorites,
+                          wasAlreadyFavorite
+                              ? localizations.removeFromFavorites
+                              : localizations.addToFavorites,
                         ),
                         duration: const Duration(seconds: 2),
                       ),
@@ -308,7 +337,8 @@ class _EstablishmentsScreenState extends State<EstablishmentsScreen> {
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        establishment.status.getDisplayText(currentLocale.languageCode),
+                        establishment.status
+                            .getDisplayText(currentLocale.languageCode),
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
@@ -320,9 +350,9 @@ class _EstablishmentsScreenState extends State<EstablishmentsScreen> {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Hours and contact info
             Row(
               children: [
@@ -357,23 +387,26 @@ class _EstablishmentsScreenState extends State<EstablishmentsScreen> {
                 ],
               ],
             ),
-            
+
             const SizedBox(height: 16),
-            
+
+            _buildQueueInfoSection(queueStatus, localizations),
+
+            const SizedBox(height: 16),
+
             // Action button
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: establishment.isOpen
-                  ? () => _joinQueue(establishment)
-                  : null,
+                    ? () => _joinQueue(establishment)
+                    : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: establishment.isOpen
-                    ? Theme.of(context).primaryColor
-                    : Colors.grey[300],
-                  foregroundColor: establishment.isOpen
-                    ? Colors.white
-                    : Colors.grey[600],
+                      ? Theme.of(context).primaryColor
+                      : Colors.grey[300],
+                  foregroundColor:
+                      establishment.isOpen ? Colors.white : Colors.grey[600],
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -389,12 +422,12 @@ class _EstablishmentsScreenState extends State<EstablishmentsScreen> {
                     const SizedBox(width: 8),
                     Text(
                       establishment.isOpen
-                        ? (localizations.language == 'Language'
-                            ? 'Join the Queue'
-                            : 'Accéder à la Fila')
-                        : (localizations.language == 'Language'
-                            ? 'Currently Closed'
-                            : 'Actuellement Fermé'),
+                          ? (localizations.language == 'Language'
+                              ? 'Join the Queue'
+                              : 'Accéder à la Fila')
+                          : (localizations.language == 'Language'
+                              ? 'Currently Closed'
+                              : 'Actuellement Fermé'),
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -410,13 +443,196 @@ class _EstablishmentsScreenState extends State<EstablishmentsScreen> {
     );
   }
 
+  Widget _buildQueueInfoSection(
+    QueueStatus? queueStatus,
+    AppLocalizations localizations,
+  ) {
+    if (queueStatus == null) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.grey[100],
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.info_outline,
+              color: Colors.grey[500],
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                localizations.language == 'Language'
+                    ? 'Queue information is being prepared. Please check again shortly.'
+                    : 'Les informations de file sont en cours de préparation. Veuillez vérifier à nouveau bientôt.',
+                style: TextStyle(
+                  color: Colors.grey[600],
+                  fontSize: 13,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final availableNumbers = queueStatus.availableNumbers.take(5).toList();
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).primaryColor.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Theme.of(context).primaryColor.withValues(alpha: 0.12),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.confirmation_number_outlined,
+                color: Theme.of(context).primaryColor,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                localizations.language == 'Language'
+                    ? 'Queue Status'
+                    : 'Statut de File',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).primaryColor,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              _buildQueueStatBadge(
+                label: localizations.language == 'Language'
+                    ? 'Serving'
+                    : 'En service',
+                value: '#${queueStatus.currentlyServing}',
+              ),
+              const SizedBox(width: 12),
+              _buildQueueStatBadge(
+                label: localizations.language == 'Language'
+                    ? 'Waiting'
+                    : 'En attente',
+                value: queueStatus.totalWaiting.toString(),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            localizations.language == 'Language'
+                ? 'Queue Line Numbers Available'
+                : 'Numéros de file disponibles',
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 8),
+          if (availableNumbers.isEmpty)
+            Text(
+              localizations.language == 'Language'
+                  ? 'No numbers available right now. Please check again soon.'
+                  : 'Aucun numéro disponible pour le moment. Veuillez revenir bientôt.',
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey[600],
+              ),
+            )
+          else
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: availableNumbers
+                  .map(
+                    (number) => _buildQueueNumberChip(number),
+                  )
+                  .toList(),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQueueStatBadge({required String label, required String value}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.grey.shade300),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x11000000),
+            blurRadius: 4,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              color: Colors.grey[600],
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQueueNumberChip(int number) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: Theme.of(context).primaryColor.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: Theme.of(context).primaryColor.withValues(alpha: 0.3),
+        ),
+      ),
+      child: Text(
+        '#$number',
+        style: TextStyle(
+          color: Theme.of(context).primaryColor,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
   void _joinQueue(Establishment establishment) {
     _showJoinQueueConfirmation(establishment);
   }
 
   void _showJoinQueueConfirmation(Establishment establishment) {
     final localizations = AppLocalizations.of(context)!;
-    
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -445,7 +661,8 @@ class _EstablishmentsScreenState extends State<EstablishmentsScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => PaymentScreen(establishment: establishment),
+                    builder: (context) =>
+                        PaymentScreen(establishment: establishment),
                   ),
                 );
               },
@@ -462,6 +679,4 @@ class _EstablishmentsScreenState extends State<EstablishmentsScreen> {
       },
     );
   }
-
-
 }

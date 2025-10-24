@@ -120,6 +120,39 @@ class AppLocalizations {
   String get english => _localizedValue('english', 'English', 'Anglais');
   String get french => _localizedValue('french', 'French', 'Français');
 
+  // Payment and confirmation
+  String get ok => _localizedValue('ok', 'OK', 'OK');
+  String get maxTicketsReachedTitle => _localizedValue(
+    'maxTicketsReachedTitle',
+    'Maximum Tickets Reached',
+    'Nombre Maximum de Billets Atteint',
+  );
+  String get maxTicketsReachedBody => _localizedValue(
+    'maxTicketsReachedBody',
+    'You can only purchase up to 4 queue numbers per establishment.',
+    'Vous ne pouvez acheter que jusqu\'à 4 numéros de file par établissement.',
+  );
+  String get queueFullTitle => _localizedValue(
+    'queueFullTitle',
+    'Queue Full',
+    'File d\'Attente Complète',
+  );
+  String get queueFullBody => _localizedValue(
+    'queueFullBody',
+    'Could not get a queue number. The queue might be full.',
+    'Impossible d\'obtenir un numéro de file. La file d\'attente est peut-être pleine.',
+  );
+  String get paymentFailedTitle => _localizedValue(
+    'paymentFailedTitle',
+    'Payment Failed',
+    'Échec du Paiement',
+  );
+  String get paymentFailedBody => _localizedValue(
+    'paymentFailedBody',
+    'There was an error processing your payment. Please try again.',
+    'Une erreur s\'est produite lors du traitement de votre paiement. Veuillez réessayer.',
+  );
+
   String _localizedValue(String key, String en, String fr) {
     switch (locale.languageCode) {
       case 'fr':
