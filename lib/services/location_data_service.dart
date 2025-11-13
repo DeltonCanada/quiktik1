@@ -242,8 +242,10 @@ class LocationDataService {
   }
 
   List<Province> getProvincesWithEstablishments() {
-    return _provinces.where((province) =>
-        province.cities.any((city) => city.establishments.isNotEmpty)).toList();
+    return _provinces
+        .where((province) =>
+            province.cities.any((city) => city.establishments.isNotEmpty))
+        .toList();
   }
 
   Province? getProvinceById(String id) {
@@ -280,7 +282,7 @@ class LocationDataService {
 
   List<Establishment> searchEstablishments(String query, {String? cityId}) {
     List<Establishment> allEstablishments = [];
-    
+
     for (var province in _provinces) {
       for (var city in province.cities) {
         if (cityId == null || city.id == cityId) {
@@ -293,7 +295,7 @@ class LocationDataService {
 
     return allEstablishments.where((establishment) {
       return establishment.name.toLowerCase().contains(query.toLowerCase()) ||
-             establishment.address.toLowerCase().contains(query.toLowerCase());
+          establishment.address.toLowerCase().contains(query.toLowerCase());
     }).toList();
   }
 

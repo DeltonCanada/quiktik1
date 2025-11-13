@@ -157,7 +157,7 @@ class HomeScreen extends StatelessWidget {
                 ),
                 SizedBox(height: 8),
                 Text(
-                  'Event Ticketing Platform',
+                  'Skip the Line, Save Your Time',
                   style: TextStyle(color: Colors.white70, fontSize: 14),
                 ),
               ],

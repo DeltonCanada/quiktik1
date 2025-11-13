@@ -4,16 +4,16 @@ import '../services/favorites_service.dart';
 import '../utils/app_localizations.dart';
 
 /// Enhanced My Favorite Establishments Widget
-/// 
+///
 /// This widget provides a comprehensive view of user's favorite establishments
 /// with improved animations, better empty state, and enhanced navigation.
 class EnhancedFavoriteEstablishmentsWidget extends StatefulWidget {
   /// Optional height constraint for the widget
   final double? height;
-  
+
   /// Whether to show the full list or a compact view
   final bool isCompact;
-  
+
   /// Maximum number of items to show in compact mode
   final int maxCompactItems;
 
@@ -40,7 +40,7 @@ class _EnhancedFavoriteEstablishmentsWidgetState
   void initState() {
     super.initState();
     _favoritesService.addListener(_handleFavoritesChanged);
-    
+
     // Initialize animations
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 300),
@@ -53,7 +53,7 @@ class _EnhancedFavoriteEstablishmentsWidgetState
       parent: _animationController,
       curve: Curves.easeInOut,
     ));
-    
+
     _animationController.forward();
   }
 
@@ -74,7 +74,7 @@ class _EnhancedFavoriteEstablishmentsWidgetState
 
   void _navigateToEstablishments() async {
     final localizations = AppLocalizations.of(context)!;
-    
+
     // For now, navigate to a generic establishments screen
     // In a real app, you'd want to navigate to a dedicated favorites management screen
     ScaffoldMessenger.of(context).showSnackBar(
@@ -97,7 +97,7 @@ class _EnhancedFavoriteEstablishmentsWidgetState
 
   void _navigateToEstablishment(Establishment establishment) {
     final localizations = AppLocalizations.of(context)!;
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
@@ -114,7 +114,7 @@ class _EnhancedFavoriteEstablishmentsWidgetState
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
     final favorites = _favoritesService.favorites;
-    final displayFavorites = widget.isCompact 
+    final displayFavorites = widget.isCompact
         ? favorites.take(widget.maxCompactItems).toList()
         : favorites;
 
@@ -143,7 +143,8 @@ class _EnhancedFavoriteEstablishmentsWidgetState
                       ? _buildEnhancedEmptyState(localizations)
                       : _buildEnhancedFavoritesList(displayFavorites),
                 ),
-                if (widget.isCompact && favorites.length > widget.maxCompactItems)
+                if (widget.isCompact &&
+                    favorites.length > widget.maxCompactItems)
                   _buildViewAllButton(localizations, favorites.length),
               ],
             ),
@@ -204,7 +205,8 @@ class _EnhancedFavoriteEstablishmentsWidgetState
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: Theme.of(context).primaryColor.withValues(alpha: 0.3),
+                    color:
+                        Theme.of(context).primaryColor.withValues(alpha: 0.3),
                     blurRadius: 4,
                     offset: const Offset(0, 2),
                   ),
@@ -277,7 +279,8 @@ class _EnhancedFavoriteEstablishmentsWidgetState
               style: ElevatedButton.styleFrom(
                 backgroundColor: Theme.of(context).primaryColor,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(25),
                 ),
@@ -329,12 +332,15 @@ class _EnhancedFavoriteEstablishmentsWidgetState
                       color: establishment.status.color.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
-                        color: establishment.status.color.withValues(alpha: 0.3),
+                        color:
+                            establishment.status.color.withValues(alpha: 0.3),
                         width: 1,
                       ),
                     ),
                     child: Icon(
-                      establishment.isOpen ? Icons.store : Icons.store_mall_directory,
+                      establishment.isOpen
+                          ? Icons.store
+                          : Icons.store_mall_directory,
                       color: establishment.status.color,
                       size: 24,
                     ),
@@ -366,13 +372,16 @@ class _EnhancedFavoriteEstablishmentsWidgetState
                       ),
                       const SizedBox(height: 6),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
-                          color: establishment.status.color.withValues(alpha: 0.1),
+                          color:
+                              establishment.status.color.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          establishment.status.getDisplayText('en'), // Simplified for now
+                          establishment.status
+                              .getDisplayText('en'), // Simplified for now
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w500,
@@ -423,7 +432,8 @@ class _EnhancedFavoriteEstablishmentsWidgetState
                   backgroundColor: Theme.of(context).primaryColor,
                   foregroundColor: Colors.white,
                 ),
-                body: const EnhancedFavoriteEstablishmentsWidget(isCompact: false),
+                body: const EnhancedFavoriteEstablishmentsWidget(
+                    isCompact: false),
               ),
             ),
           );

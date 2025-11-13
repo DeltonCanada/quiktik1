@@ -17,10 +17,16 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   late Animation<double> _fadeAnimation;
   late Animation<double> _scaleAnimation;
   late Animation<Offset> _slideAnimation;
+  // Simplified for user-only app - no establishment updates needed
 
   @override
   void initState() {
     super.initState();
+
+    // Debug message to confirm welcome screen is showing
+    debugPrint('🎉 WELCOME SCREEN IS NOW VISIBLE! 🎉');
+
+    // Simplified for user-only app - no establishment updates needed
 
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 1500),
@@ -59,8 +65,8 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
     _animationController.forward();
 
-    // Navigate to home screen after 3 seconds
-    Timer(const Duration(seconds: 3), () {
+    // Navigate to home screen after 10 seconds (or manually via button)
+    Timer(const Duration(seconds: 10), () {
       if (mounted) {
         Navigator.of(context).pushReplacement(
           PageRouteBuilder(
@@ -83,6 +89,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   @override
   void dispose() {
     _animationController.dispose();
+    // No subscription to cancel in user-only app
     super.dispose();
   }
 
@@ -92,105 +99,124 @@ class _WelcomeScreenState extends State<WelcomeScreen>
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
             colors: [
-              Color(0xFF1E88E5),
-              Color(0xFF1565C0),
-              Color(0xFF0D47A1),
+              Color(0xFF667eea), // Elegant purple-blue
+              Color(0xFF764ba2), // Rich purple
             ],
           ),
         ),
         child: SafeArea(
-          child: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Spacer(flex: 2),
 
-                // Animated logo/icon
-                ScaleTransition(
-                  scale: _scaleAnimation,
-                  child: FadeTransition(
-                    opacity: _fadeAnimation,
-                    child: Container(
-                      width: 120,
-                      height: 120,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.15),
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.2),
-                            blurRadius: 30,
-                            spreadRadius: 5,
-                          ),
-                        ],
-                      ),
-                      child: const Icon(
-                        Icons.confirmation_number_outlined,
-                        size: 60,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 40),
-
-                // Animated welcome text
-                SlideTransition(
-                  position: _slideAnimation,
-                  child: FadeTransition(
-                    opacity: _fadeAnimation,
-                    child: Column(
-                      children: [
-                        const Text(
-                          'Welcome to',
+                // Professional Welcome Header
+                FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: Column(
+                    children: [
+                      // Welcome Badge
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+                        ),
+                        child: Text(
+                          '👋 WELCOME',
                           style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 22,
-                            fontWeight: FontWeight.w300,
-                            letterSpacing: 1.5,
+                            color: Colors.white.withValues(alpha: 0.9),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 2.0,
                           ),
                         ),
-                        const SizedBox(height: 12),
-                        const Text(
-                          'QuikTik',
-                          style: TextStyle(
+                      ),
+                      const SizedBox(height: 24),
+                      
+                      // App Logo & Brand
+                      ScaleTransition(
+                        scale: _scaleAnimation,
+                        child: Container(
+                          width: 120,
+                          height: 120,
+                          decoration: BoxDecoration(
                             color: Colors.white,
-                            fontSize: 56,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 2,
-                            shadows: [
-                              Shadow(
-                                color: Color(0x4D000000),
-                                offset: Offset(0, 4),
-                                blurRadius: 10,
+                            borderRadius: BorderRadius.circular(32),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.25),
+                                blurRadius: 32,
+                                offset: const Offset(0, 8),
                               ),
                             ],
                           ),
+                          child: const Icon(
+                            Icons.access_time_rounded,
+                            size: 60,
+                            color: Color(0xFF667eea),
+                          ),
                         ),
-                        const SizedBox(height: 16),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: const Text(
-                            'Skip the Line, Save Your Time',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w400,
-                              letterSpacing: 0.5,
+                      ),
+                      
+                      const SizedBox(height: 32),
+                      
+                      // App Name & Tagline
+                      SlideTransition(
+                        position: _slideAnimation,
+                        child: Column(
+                          children: [
+                            const Text(
+                              'QuikTik',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 52,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: -1.0,
+                                height: 1.1,
+                              ),
                             ),
-                          ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Skip the Line, Save Your Time',
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.85),
+                                fontSize: 18,
+                                fontWeight: FontWeight.w400,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ],
                         ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const Spacer(flex: 3),
+
+                // Features Preview
+                FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+                    ),
+                    child: Column(
+                      children: [
+                        _buildFeatureItem('🎫', 'Buy Queue Tickets', 'Get your spot instantly'),
+                        const SizedBox(height: 16),
+                        _buildFeatureItem('📱', 'Track Your Position', 'Real-time queue updates'),
+                        const SizedBox(height: 16),
+                        _buildFeatureItem('⭐', 'Save Favorites', 'Quick access to your locations'),
                       ],
                     ),
                   ),
@@ -198,38 +224,116 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
                 const Spacer(flex: 2),
 
-                // Loading indicator
-                FadeTransition(
-                  opacity: _fadeAnimation,
-                  child: const Column(
-                    children: [
-                      SizedBox(
-                        width: 30,
-                        height: 30,
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 3,
+                // Get Started Button
+                SlideTransition(
+                  position: _slideAnimation,
+                  child: FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              if (mounted) {
+                                Navigator.of(context).pushReplacement(
+                                  PageRouteBuilder(
+                                    pageBuilder: (context, animation, secondaryAnimation) =>
+                                        HomeScreen(onLocaleChange: widget.onLocaleChange),
+                                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                      return FadeTransition(opacity: animation, child: child);
+                                    },
+                                    transitionDuration: const Duration(milliseconds: 600),
+                                  ),
+                                );
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              foregroundColor: const Color(0xFF667eea),
+                              padding: const EdgeInsets.symmetric(vertical: 18),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              elevation: 8,
+                              shadowColor: Colors.black.withValues(alpha: 0.3),
+                            ),
+                            child: const Text(
+                              'Get Started',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                      SizedBox(height: 16),
-                      Text(
-                        'Loading...',
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 14,
-                          letterSpacing: 1,
+                        const SizedBox(height: 16),
+                        Text(
+                          'Ready to skip the wait? Let\'s go!',
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.7),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
 
-                const SizedBox(height: 60),
+                const SizedBox(height: 32),
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildFeatureItem(String icon, String title, String description) {
+    return Row(
+      children: [
+        Container(
+          width: 48,
+          height: 48,
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Center(
+            child: Text(
+              icon,
+              style: const TextStyle(fontSize: 24),
+            ),
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                description,
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.7),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

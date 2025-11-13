@@ -8,7 +8,8 @@ class ProvinceSelectionScreen extends StatefulWidget {
   const ProvinceSelectionScreen({super.key});
 
   @override
-  State<ProvinceSelectionScreen> createState() => _ProvinceSelectionScreenState();
+  State<ProvinceSelectionScreen> createState() =>
+      _ProvinceSelectionScreenState();
 }
 
 class _ProvinceSelectionScreenState extends State<ProvinceSelectionScreen> {
@@ -25,12 +26,12 @@ class _ProvinceSelectionScreenState extends State<ProvinceSelectionScreen> {
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
-    
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(localizations.language == 'Language' 
-          ? 'Select Province' 
-          : 'Sélectionnez une Province'),
+        title: Text(localizations.language == 'Language'
+            ? 'Select Province'
+            : 'Sélectionnez une Province'),
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
       ),
@@ -59,8 +60,8 @@ class _ProvinceSelectionScreenState extends State<ProvinceSelectionScreen> {
                 const SizedBox(height: 12),
                 Text(
                   localizations.language == 'Language'
-                    ? 'Choose Your Province'
-                    : 'Choisissez Votre Province',
+                      ? 'Choose Your Province'
+                      : 'Choisissez Votre Province',
                   style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -71,8 +72,8 @@ class _ProvinceSelectionScreenState extends State<ProvinceSelectionScreen> {
                 const SizedBox(height: 8),
                 Text(
                   localizations.language == 'Language'
-                    ? 'Select a province to view available QuikTik locations'
-                    : 'Sélectionnez une province pour voir les emplacements QuikTik disponibles',
+                      ? 'Select a province to view available QuikTik locations'
+                      : 'Sélectionnez une province pour voir les emplacements QuikTik disponibles',
                   style: const TextStyle(
                     fontSize: 16,
                     color: Colors.white70,
@@ -83,9 +84,9 @@ class _ProvinceSelectionScreenState extends State<ProvinceSelectionScreen> {
             ),
           ),
           Expanded(
-            child: _provinces.isEmpty 
-              ? _buildEmptyState(localizations)
-              : _buildProvinceList(),
+            child: _provinces.isEmpty
+                ? _buildEmptyState(localizations)
+                : _buildProvinceList(),
           ),
         ],
       ),
@@ -105,8 +106,8 @@ class _ProvinceSelectionScreenState extends State<ProvinceSelectionScreen> {
           const SizedBox(height: 16),
           Text(
             localizations.language == 'Language'
-              ? 'No locations available'
-              : 'Aucun emplacement disponible',
+                ? 'No locations available'
+                : 'Aucun emplacement disponible',
             style: TextStyle(
               fontSize: 18,
               color: Colors.grey[600],
@@ -184,8 +185,8 @@ class _ProvinceSelectionScreenState extends State<ProvinceSelectionScreen> {
                     const SizedBox(height: 4),
                     Text(
                       AppLocalizations.of(context)!.language == 'Language'
-                        ? '$totalEstablishments locations • $openEstablishments open'
-                        : '$totalEstablishments emplacements • $openEstablishments ouverts',
+                          ? '$totalEstablishments locations • $openEstablishments open'
+                          : '$totalEstablishments emplacements • $openEstablishments ouverts',
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.grey[600],

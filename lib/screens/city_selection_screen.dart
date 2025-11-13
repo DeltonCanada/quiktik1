@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../utils/app_localizations.dart';
 import '../models/location_models.dart';
-import 'establishments_screen.dart';
+import 'payment_screen.dart';
 
 class CitySelectionScreen extends StatelessWidget {
   final Province province;
@@ -14,7 +14,7 @@ class CitySelectionScreen extends StatelessWidget {
     final citiesWithEstablishments = province.cities
         .where((city) => city.establishments.isNotEmpty)
         .toList();
-    
+
     return Scaffold(
       appBar: AppBar(
         title: Text('${province.name} (${province.code})'),
@@ -46,8 +46,8 @@ class CitySelectionScreen extends StatelessWidget {
                 const SizedBox(height: 12),
                 Text(
                   localizations.language == 'Language'
-                    ? 'Select City'
-                    : 'Sélectionnez une Ville',
+                      ? 'Select City'
+                      : 'Sélectionnez une Ville',
                   style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -58,8 +58,8 @@ class CitySelectionScreen extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   localizations.language == 'Language'
-                    ? 'Choose a city to view QuikTik establishments'
-                    : 'Choisissez une ville pour voir les établissements QuikTik',
+                      ? 'Choose a city to view QuikTik establishments'
+                      : 'Choisissez une ville pour voir les établissements QuikTik',
                   style: const TextStyle(
                     fontSize: 16,
                     color: Colors.white70,
@@ -70,9 +70,9 @@ class CitySelectionScreen extends StatelessWidget {
             ),
           ),
           Expanded(
-            child: citiesWithEstablishments.isEmpty 
-              ? _buildEmptyState(localizations)
-              : _buildCityList(citiesWithEstablishments),
+            child: citiesWithEstablishments.isEmpty
+                ? _buildEmptyState(localizations)
+                : _buildCityList(citiesWithEstablishments),
           ),
         ],
       ),
@@ -92,8 +92,8 @@ class CitySelectionScreen extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             localizations.language == 'Language'
-              ? 'No cities available'
-              : 'Aucune ville disponible',
+                ? 'No cities available'
+                : 'Aucune ville disponible',
             style: TextStyle(
               fontSize: 18,
               color: Colors.grey[600],
@@ -140,7 +140,8 @@ class CitySelectionScreen extends StatelessWidget {
                     width: 60,
                     height: 60,
                     decoration: BoxDecoration(
-                      color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                      color:
+                          Theme.of(context).primaryColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Icon(
@@ -164,8 +165,8 @@ class CitySelectionScreen extends StatelessWidget {
                         const SizedBox(height: 4),
                         Text(
                           AppLocalizations.of(context)!.language == 'Language'
-                            ? '$totalEstablishments establishments available'
-                            : '$totalEstablishments établissements disponibles',
+                              ? '$totalEstablishments establishments available'
+                              : '$totalEstablishments établissements disponibles',
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.grey[600],
@@ -193,9 +194,10 @@ class CitySelectionScreen extends StatelessWidget {
                                   ),
                                   const SizedBox(width: 4),
                                   Text(
-                                    AppLocalizations.of(context)!.language == 'Language'
-                                      ? '$openEstablishments open'
-                                      : '$openEstablishments ouverts',
+                                    AppLocalizations.of(context)!.language ==
+                                            'Language'
+                                        ? '$openEstablishments open'
+                                        : '$openEstablishments ouverts',
                                     style: const TextStyle(
                                       fontSize: 12,
                                       color: Colors.green,
@@ -257,14 +259,49 @@ class CitySelectionScreen extends StatelessWidget {
   }
 
   void _navigateToCity(City city, BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => EstablishmentsScreen(
-          city: city,
-          provinceName: province.name,
-        ),
-      ),
+    // Show establishments in this city for customer to choose
+    _showEstablishmentSelection(context, city);
+  }
+
+  void _showEstablishmentSelection(BuildContext context, City city) {
+    final establishments = city.establishments;
+    
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Choose a location in ${city.name}',
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+              const SizedBox(height: 16),
+              for (final establishment in establishments) 
+                ListTile(
+                  leading: const Icon(Icons.location_on),
+                  title: Text(establishment.name),
+                  subtitle: Text(establishment.address),
+                  trailing: const Icon(Icons.arrow_forward_ios),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PaymentScreen(
+                          establishment: establishment,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

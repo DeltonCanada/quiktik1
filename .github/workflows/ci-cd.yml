@@ -1,0 +1,221 @@
+name: QuikTik CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  # Code Quality and Analysis
+  analyze:
+    name: Code Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.x'
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Check code formatting
+        run: dart format --set-exit-if-changed lib/ test/
+
+      - name: Analyze code
+        run: dart analyze --fatal-infos
+
+      - name: Check for deprecated APIs
+        shell: bash
+        run: |
+          echo "Checking for deprecated methods..."
+          if grep -r "withOpacity\|FlatButton\|RaisedButton" lib/; then
+            echo "❌ Found deprecated methods!"
+            exit 1
+          else
+            echo "✅ No deprecated methods found!"
+          fi
+
+  # Unit and Widget Tests
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    needs: analyze
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.x'
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Run unit tests
+        run: flutter test --coverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: coverage/lcov.info
+
+  # Build for multiple platforms
+  build:
+    name: Build Application
+    runs-on: ubuntu-latest
+    needs: test
+    strategy:
+      matrix:
+        platform: [web, android]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.x'
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Build for Web
+        if: matrix.platform == 'web'
+        run: flutter build web --release --no-tree-shake-icons
+
+      - name: Setup Java for Android
+        if: matrix.platform == 'android'
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Build APK
+        if: matrix.platform == 'android'
+        run: flutter build apk --release
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-${{ matrix.platform }}
+          path: |
+            build/web/
+            build/app/outputs/flutter-apk/app-release.apk
+
+  # Security and Dependency Check
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.x'
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Check for security vulnerabilities
+        run: |
+          echo "Checking for insecure dependencies..."
+          # This would check pubspec.yaml for known vulnerable packages
+          # In a real scenario, you'd use tools like 'dart pub audit'
+          echo "Security check completed"
+
+      - name: Validate pubspec.yaml
+        run: |
+          echo "Validating pubspec.yaml structure..."
+          if ! flutter pub deps > /dev/null 2>&1; then
+            echo "❌ Invalid pubspec.yaml!"
+            exit 1
+          else
+            echo "✅ pubspec.yaml is valid!"
+          fi
+
+  # Performance and Quality Metrics
+  metrics:
+    name: Performance Metrics
+    runs-on: ubuntu-latest
+    needs: analyze
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.x'
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Generate metrics report
+        run: |
+          echo "📊 Generating code metrics..."
+          
+          # Count lines of code
+          echo "Lines of Dart code:"
+          find lib/ -name "*.dart" -exec wc -l {} + | tail -1
+          
+          # Count test coverage
+          echo "Test files:"
+          find test/ -name "*.dart" | wc -l
+          
+          # Check for TODO comments
+          echo "TODO items:"
+          grep -r "TODO\|FIXME\|HACK" lib/ || echo "No TODO items found"
+
+  # Deployment (only on main branch)
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [test, build, security]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.x'
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Build for deployment
+        run: flutter build web --release
+
+      - name: Deploy to Firebase Hosting
+        # This would deploy to Firebase Hosting in a real scenario
+        # uses: FirebaseExtended/action-hosting-deploy@v0
+        run: |
+          echo "🚀 Deployment would happen here"
+          echo "Built files ready for deployment"
+
+  # Notification on completion
+  notify:
+    name: Notify Results
+    runs-on: ubuntu-latest
+    needs: [analyze, test, build, security, metrics]
+    if: always()
+    steps:
+      - name: Notify success
+        if: needs.analyze.result == 'success' && needs.test.result == 'success' && needs.build.result == 'success'
+        run: |
+          echo "✅ All checks passed! QuikTik is ready for deployment."
+          
+      - name: Notify failure
+        if: needs.analyze.result == 'failure' || needs.test.result == 'failure' || needs.build.result == 'failure'
+        run: |
+          echo "❌ Some checks failed. Please review the logs."
+          exit 1

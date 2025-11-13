@@ -1,1 +1,23 @@
 include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  errors:
+    # Treat deprecation warnings as errors to prevent using deprecated APIs
+    deprecated_member_use: error
+    # Treat unnecessary const as warnings
+    unnecessary_const: warning
+    # Treat unused imports as errors
+    unused_import: error
+  
+linter:
+  rules:
+    # Additional rules to maintain code quality
+    prefer_const_constructors: true
+    prefer_const_declarations: true
+    prefer_const_literals_to_create_immutables: true
+    avoid_unnecessary_containers: true
+    sized_box_for_whitespace: true
+    use_key_in_widget_constructors: true
+    prefer_final_fields: true
+    unnecessary_late: true
+    use_super_parameters: true

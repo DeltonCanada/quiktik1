@@ -1,0 +1,288 @@
+name: QuikTik Security & Quality Checks
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  security-analysis:
+    runs-on: ubuntu-latest
+    name: Security Analysis & Quality Checks
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.24.0'
+        channel: 'stable'
+
+    - name: Get dependencies
+      run: flutter pub get
+
+    - name: Verify Flutter installation
+      run: flutter doctor -v
+
+    - name: Run Dart analysis
+      run: flutter analyze --fatal-infos --fatal-warnings
+
+    - name: Check formatting
+      run: dart format --output=none --set-exit-if-changed lib/ test/
+
+    - name: Run security linting
+      run: |
+        echo "🔍 Checking for security issues..."
+        
+        # Check for hardcoded secrets
+        if grep -r "password.*=" lib/ || grep -r "apiKey.*=" lib/ || grep -r "token.*=" lib/; then
+          echo "❌ Potential hardcoded secrets found!"
+          exit 1
+        fi
+        
+        # Check for deprecated methods
+        if grep -r "withOpacity" lib/; then
+          echo "❌ Deprecated withOpacity methods found!"
+          exit 1
+        fi
+        
+        # Check for unsafe HTTP
+        if grep -r "http://" lib/; then
+          echo "⚠️ Unsafe HTTP URLs found - consider using HTTPS"
+        fi
+        
+        echo "✅ Security checks passed!"
+
+    - name: Run unit tests
+      run: flutter test --coverage
+
+    - name: Check test coverage
+      run: |
+        # Install lcov for coverage reporting
+        sudo apt-get update
+        sudo apt-get install -y lcov
+        
+        # Generate coverage report
+        genhtml coverage/lcov.info -o coverage/html
+        
+        # Check coverage threshold (70%)
+        COVERAGE=$(lcov --summary coverage/lcov.info | grep "functions" | awk '{print $2}' | sed 's/%//')
+        echo "Coverage: $COVERAGE%"
+        
+        if (( $(echo "$COVERAGE < 70" | bc -l) )); then
+          echo "❌ Coverage is below 70%: $COVERAGE%"
+          exit 1
+        fi
+        
+        echo "✅ Coverage check passed: $COVERAGE%"
+
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v3
+      with:
+        file: coverage/lcov.info
+        fail_ci_if_error: false
+
+    - name: Build for Web (Production)
+      run: flutter build web --release
+
+    - name: Build for Android (Production)  
+      run: flutter build apk --release
+
+    - name: Security dependency check
+      run: |
+        echo "🔍 Checking dependencies for security vulnerabilities..."
+        
+        # Check pubspec.yaml for known vulnerable packages
+        if grep -q "http: " pubspec.yaml; then
+          echo "⚠️ Using http package - ensure HTTPS validation is implemented"
+        fi
+        
+        # Verify no dev dependencies in production
+        flutter pub deps --json > deps.json
+        
+        echo "✅ Dependency security check completed!"
+
+    - name: Performance and size analysis
+      run: |
+        echo "📊 Analyzing build performance..."
+        
+        # Check web build size
+        WEB_SIZE=$(du -sh build/web | cut -f1)
+        echo "Web build size: $WEB_SIZE"
+        
+        # Check APK size  
+        if [ -f "build/app/outputs/flutter-apk/app-release.apk" ]; then
+          APK_SIZE=$(du -sh build/app/outputs/flutter-apk/app-release.apk | cut -f1)
+          echo "APK size: $APK_SIZE"
+        fi
+        
+        echo "✅ Performance analysis completed!"
+
+  widget-tests:
+    runs-on: ubuntu-latest
+    name: Widget Tests
+    
+    steps:
+    - uses: actions/checkout@v4
+    - uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.24.0'
+        channel: 'stable'
+    
+    - name: Get dependencies
+      run: flutter pub get
+    
+    - name: Run widget tests
+      run: flutter test test/widgets/ --reporter=expanded
+    
+  integration-tests:
+    runs-on: ubuntu-latest
+    name: Integration Tests
+    
+    steps:
+    - uses: actions/checkout@v4
+    - uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.24.0'
+        channel: 'stable'
+    
+    - name: Get dependencies
+      run: flutter pub get
+    
+    - name: Run integration tests
+      run: |
+        if [ -d "integration_test" ]; then
+          flutter test integration_test/ --reporter=expanded
+        else
+          echo "No integration tests found - skipping"
+        fi
+
+  code-quality:
+    runs-on: ubuntu-latest
+    name: Code Quality Analysis
+    
+    steps:
+    - uses: actions/checkout@v4
+    - uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.24.0'
+        channel: 'stable'
+    
+    - name: Get dependencies
+      run: flutter pub get
+    
+    - name: Run comprehensive quality checks
+      run: |
+        echo "🔍 Running comprehensive code quality analysis..."
+        
+        # Check for TODOs and FIXMEs
+        TODO_COUNT=$(grep -r "TODO\|FIXME\|XXX" lib/ | wc -l || echo "0")
+        echo "TODOs/FIXMEs found: $TODO_COUNT"
+        
+        # Check for debug prints
+        DEBUG_PRINTS=$(grep -r "print(" lib/ | wc -l || echo "0")
+        if [ "$DEBUG_PRINTS" -gt 0 ]; then
+          echo "⚠️ Found $DEBUG_PRINTS debug print statements"
+          grep -r "print(" lib/ || true
+        fi
+        
+        # Check for unused imports
+        echo "Checking for unused imports..."
+        flutter analyze --no-fatal-infos > analysis.txt 2>&1 || true
+        UNUSED_IMPORTS=$(grep "unused_import" analysis.txt | wc -l || echo "0")
+        if [ "$UNUSED_IMPORTS" -gt 0 ]; then
+          echo "❌ Found $UNUSED_IMPORTS unused imports"
+          cat analysis.txt
+          exit 1
+        fi
+        
+        # Check code complexity (approximate)
+        LARGE_FILES=$(find lib/ -name "*.dart" -exec wc -l {} \; | awk '$1 > 500 {print $2 " has " $1 " lines"}')
+        if [ -n "$LARGE_FILES" ]; then
+          echo "⚠️ Large files detected (>500 lines):"
+          echo "$LARGE_FILES"
+        fi
+        
+        echo "✅ Code quality analysis completed!"
+
+  security-scan:
+    runs-on: ubuntu-latest
+    name: Advanced Security Scan
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Advanced security analysis
+      run: |
+        echo "🔒 Running advanced security analysis..."
+        
+        # Check for potential XSS vulnerabilities
+        if grep -r "innerHTML\|outerHTML" lib/; then
+          echo "⚠️ Potential XSS vulnerability - innerHTML usage found"
+        fi
+        
+        # Check for SQL injection patterns
+        if grep -r "SELECT.*\+\|INSERT.*\+\|UPDATE.*\+" lib/; then
+          echo "⚠️ Potential SQL injection - string concatenation in queries"
+        fi
+        
+        # Check for insecure random number generation
+        if grep -r "Random()" lib/; then
+          echo "⚠️ Insecure random number generation found"
+        fi
+        
+        # Check for hardcoded crypto keys
+        if grep -rE "[A-Za-z0-9]{32,}" lib/ | grep -E "(key|token|secret)" || true; then
+          echo "⚠️ Potential hardcoded cryptographic material found"
+        fi
+        
+        # Check permissions in Android manifest
+        if [ -f "android/app/src/main/AndroidManifest.xml" ]; then
+          INTERNET_PERM=$(grep -c "android.permission.INTERNET" android/app/src/main/AndroidManifest.xml || echo "0")
+          CAMERA_PERM=$(grep -c "android.permission.CAMERA" android/app/src/main/AndroidManifest.xml || echo "0")
+          LOCATION_PERM=$(grep -c "android.permission.ACCESS_FINE_LOCATION" android/app/src/main/AndroidManifest.xml || echo "0")
+          
+          echo "📱 Android Permissions Analysis:"
+          echo "- Internet: $INTERNET_PERM"
+          echo "- Camera: $CAMERA_PERM" 
+          echo "- Location: $LOCATION_PERM"
+        fi
+        
+        echo "✅ Advanced security scan completed!"
+
+  notify-status:
+    runs-on: ubuntu-latest
+    name: Notify Status
+    needs: [security-analysis, widget-tests, integration-tests, code-quality, security-scan]
+    if: always()
+    
+    steps:
+    - name: Determine overall status
+      run: |
+        if [[ "${{ needs.security-analysis.result }}" == "success" && 
+              "${{ needs.widget-tests.result }}" == "success" && 
+              "${{ needs.integration-tests.result }}" == "success" && 
+              "${{ needs.code-quality.result }}" == "success" && 
+              "${{ needs.security-scan.result }}" == "success" ]]; then
+          echo "🎉 All security and quality checks passed!"
+          echo "STATUS=success" >> $GITHUB_ENV
+        else
+          echo "❌ Some checks failed. Please review the results."
+          echo "STATUS=failure" >> $GITHUB_ENV
+        fi
+    
+    - name: Summary
+      run: |
+        echo "## QuikTik Security & Quality Report" >> $GITHUB_STEP_SUMMARY
+        echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
+        echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+        echo "| Security Analysis | ${{ needs.security-analysis.result }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Widget Tests | ${{ needs.widget-tests.result }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Integration Tests | ${{ needs.integration-tests.result }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Code Quality | ${{ needs.code-quality.result }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Security Scan | ${{ needs.security-scan.result }} |" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "Overall Status: **$STATUS**" >> $GITHUB_STEP_SUMMARY

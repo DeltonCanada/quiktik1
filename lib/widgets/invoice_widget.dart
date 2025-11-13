@@ -27,7 +27,7 @@ class _InvoiceWidgetState extends State<InvoiceWidget> {
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
     final invoice = Invoice.generate(widget.ticket, widget.payment);
-    
+
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
@@ -45,7 +45,7 @@ class _InvoiceWidgetState extends State<InvoiceWidget> {
               borderRadius: BorderRadius.circular(2),
             ),
           ),
-          
+
           // Header
           Padding(
             padding: const EdgeInsets.all(16),
@@ -58,9 +58,7 @@ class _InvoiceWidgetState extends State<InvoiceWidget> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  localizations.language == 'Language'
-                    ? 'Factura'
-                    : 'Facture',
+                  localizations.language == 'Language' ? 'Factura' : 'Facture',
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -74,9 +72,9 @@ class _InvoiceWidgetState extends State<InvoiceWidget> {
               ],
             ),
           ),
-          
+
           const Divider(height: 1),
-          
+
           // Invoice content
           Expanded(
             child: SingleChildScrollView(
@@ -112,8 +110,8 @@ class _InvoiceWidgetState extends State<InvoiceWidget> {
                         const SizedBox(height: 4),
                         Text(
                           localizations.language == 'Language'
-                            ? 'Queue Management System'
-                            : 'Système de Gestion de Files',
+                              ? 'Queue Management System'
+                              : 'Système de Gestion de Files',
                           style: const TextStyle(
                             color: Colors.white70,
                             fontSize: 14,
@@ -128,8 +126,8 @@ class _InvoiceWidgetState extends State<InvoiceWidget> {
                               children: [
                                 Text(
                                   localizations.language == 'Language'
-                                    ? 'Invoice #'
-                                    : 'Facture #',
+                                      ? 'Invoice #'
+                                      : 'Facture #',
                                   style: const TextStyle(
                                     color: Colors.white70,
                                     fontSize: 12,
@@ -150,8 +148,8 @@ class _InvoiceWidgetState extends State<InvoiceWidget> {
                               children: [
                                 Text(
                                   localizations.language == 'Language'
-                                    ? 'Date'
-                                    : 'Date',
+                                      ? 'Date'
+                                      : 'Date',
                                   style: const TextStyle(
                                     color: Colors.white70,
                                     fontSize: 12,
@@ -172,27 +170,27 @@ class _InvoiceWidgetState extends State<InvoiceWidget> {
                       ],
                     ),
                   ),
-                  
+
                   const SizedBox(height: 24),
-                  
+
                   // Establishment info
                   _buildSection(
                     localizations.language == 'Language'
-                      ? 'Service Provider'
-                      : 'Fournisseur de Service',
+                        ? 'Service Provider'
+                        : 'Fournisseur de Service',
                     [
                       widget.ticket.establishmentName,
                       widget.ticket.establishmentAddress,
                     ],
                   ),
-                  
+
                   const SizedBox(height: 20),
-                  
+
                   // Ticket details
                   _buildSection(
                     localizations.language == 'Language'
-                      ? 'Ticket Details'
-                      : 'Détails du Billet',
+                        ? 'Ticket Details'
+                        : 'Détails du Billet',
                     [
                       '${localizations.language == 'Language' ? 'Queue Number' : 'Numéro de File'}: #${widget.ticket.queueNumber}',
                       '${localizations.language == 'Language' ? 'Ticket ID' : 'ID du Billet'}: ${widget.ticket.id.substring(0, 8).toUpperCase()}',
@@ -200,14 +198,14 @@ class _InvoiceWidgetState extends State<InvoiceWidget> {
                       '${localizations.language == 'Language' ? 'Valid Until' : 'Valide Jusqu\'à'}: ${_formatDateTime(widget.ticket.expirationTime)}',
                     ],
                   ),
-                  
+
                   const SizedBox(height: 20),
-                  
+
                   // Payment details
                   _buildSection(
                     localizations.language == 'Language'
-                      ? 'Payment Details'
-                      : 'Détails de Paiement',
+                        ? 'Payment Details'
+                        : 'Détails de Paiement',
                     [
                       '${localizations.language == 'Language' ? 'Amount' : 'Montant'}: \$${widget.payment.amount.toStringAsFixed(2)} CAD',
                       '${localizations.language == 'Language' ? 'Payment Method' : 'Méthode de Paiement'}: ${widget.payment.method.getDisplayText(Localizations.localeOf(context).languageCode)}',
@@ -215,9 +213,9 @@ class _InvoiceWidgetState extends State<InvoiceWidget> {
                       '${localizations.language == 'Language' ? 'Status' : 'Statut'}: ${widget.payment.status.getDisplayText(Localizations.localeOf(context).languageCode)}',
                     ],
                   ),
-                  
+
                   const SizedBox(height: 20),
-                  
+
                   // Total section
                   Container(
                     width: double.infinity,
@@ -234,8 +232,8 @@ class _InvoiceWidgetState extends State<InvoiceWidget> {
                           children: [
                             Text(
                               localizations.language == 'Language'
-                                ? 'Queue Number Fee'
-                                : 'Frais de Numéro de File',
+                                  ? 'Queue Number Fee'
+                                  : 'Frais de Numéro de File',
                               style: const TextStyle(fontSize: 14),
                             ),
                             Text(
@@ -250,8 +248,8 @@ class _InvoiceWidgetState extends State<InvoiceWidget> {
                           children: [
                             Text(
                               localizations.language == 'Language'
-                                ? 'Taxes (HST)'
-                                : 'Taxes (TVH)',
+                                  ? 'Taxes (HST)'
+                                  : 'Taxes (TVH)',
                               style: const TextStyle(fontSize: 14),
                             ),
                             const Text(
@@ -266,8 +264,8 @@ class _InvoiceWidgetState extends State<InvoiceWidget> {
                           children: [
                             Text(
                               localizations.language == 'Language'
-                                ? 'Total Amount'
-                                : 'Montant Total',
+                                  ? 'Total Amount'
+                                  : 'Montant Total',
                               style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
@@ -286,9 +284,9 @@ class _InvoiceWidgetState extends State<InvoiceWidget> {
                       ],
                     ),
                   ),
-                  
+
                   const SizedBox(height: 24),
-                  
+
                   // Terms and conditions
                   Container(
                     width: double.infinity,
@@ -303,8 +301,8 @@ class _InvoiceWidgetState extends State<InvoiceWidget> {
                       children: [
                         Text(
                           localizations.language == 'Language'
-                            ? 'Terms & Conditions'
-                            : 'Termes et Conditions',
+                              ? 'Terms & Conditions'
+                              : 'Termes et Conditions',
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 12,
@@ -313,8 +311,8 @@ class _InvoiceWidgetState extends State<InvoiceWidget> {
                         const SizedBox(height: 4),
                         Text(
                           localizations.language == 'Language'
-                            ? '• Tickets are non-refundable\n• Valid only for the specified establishment\n• Must be used within the validity period\n• Queue position may change based on availability'
-                            : '• Les billets ne sont pas remboursables\n• Valide seulement pour l\'établissement spécifié\n• Doit être utilisé dans la période de validité\n• La position dans la file peut changer selon la disponibilité',
+                              ? '• Tickets are non-refundable\n• Valid only for the specified establishment\n• Must be used within the validity period\n• Queue position may change based on availability'
+                              : '• Les billets ne sont pas remboursables\n• Valide seulement pour l\'établissement spécifié\n• Doit être utilisé dans la période de validité\n• La position dans la file peut changer selon la disponibilité',
                           style: TextStyle(
                             fontSize: 10,
                             color: Colors.yellow[800],
@@ -323,13 +321,13 @@ class _InvoiceWidgetState extends State<InvoiceWidget> {
                       ],
                     ),
                   ),
-                  
+
                   const SizedBox(height: 32),
                 ],
               ),
             ),
           ),
-          
+
           // Action buttons
           Container(
             padding: const EdgeInsets.all(16),
@@ -354,8 +352,8 @@ class _InvoiceWidgetState extends State<InvoiceWidget> {
                         icon: const Icon(Icons.print),
                         label: Text(
                           localizations.language == 'Language'
-                            ? 'Print'
-                            : 'Imprimer',
+                              ? 'Print'
+                              : 'Imprimer',
                         ),
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 12),
@@ -367,16 +365,21 @@ class _InvoiceWidgetState extends State<InvoiceWidget> {
                       child: ElevatedButton.icon(
                         onPressed: _isProcessing ? null : _handleEmail,
                         icon: _isProcessing
-                          ? const SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : Icon(_isEmailSent ? Icons.check : Icons.email),
+                            ? const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            : Icon(_isEmailSent ? Icons.check : Icons.email),
                         label: Text(
                           _isEmailSent
-                            ? (localizations.language == 'Language' ? 'Sent!' : 'Envoyé!')
-                            : (localizations.language == 'Language' ? 'Email' : 'E-mail'),
+                              ? (localizations.language == 'Language'
+                                  ? 'Sent!'
+                                  : 'Envoyé!')
+                              : (localizations.language == 'Language'
+                                  ? 'Email'
+                                  : 'E-mail'),
                         ),
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 12),
@@ -386,13 +389,13 @@ class _InvoiceWidgetState extends State<InvoiceWidget> {
                     ),
                   ],
                 ),
-                
+
                 if (_isEmailSent) ...[
                   const SizedBox(height: 8),
                   Text(
                     localizations.language == 'Language'
-                      ? 'Invoice sent to your email'
-                      : 'Facture envoyée à votre e-mail',
+                        ? 'Invoice sent to your email'
+                        : 'Facture envoyée à votre e-mail',
                     style: TextStyle(
                       fontSize: 12,
                       color: Colors.green[600],
@@ -429,13 +432,15 @@ class _InvoiceWidgetState extends State<InvoiceWidget> {
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: items.map((item) => Padding(
-              padding: const EdgeInsets.only(bottom: 4),
-              child: Text(
-                item,
-                style: const TextStyle(fontSize: 14),
-              ),
-            )).toList(),
+            children: items
+                .map((item) => Padding(
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: Text(
+                        item,
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                    ))
+                .toList(),
           ),
         ),
       ],
@@ -444,7 +449,7 @@ class _InvoiceWidgetState extends State<InvoiceWidget> {
 
   void _handlePrint() {
     HapticFeedback.lightImpact();
-    
+
     // Show print dialog
     showDialog(
       context: context,
@@ -487,8 +492,8 @@ class _InvoiceWidgetState extends State<InvoiceWidget> {
             const SizedBox(width: 8),
             Text(
               AppLocalizations.of(context)!.language == 'Language'
-                ? 'Print job sent to printer'
-                : 'Travail d\'impression envoyé à l\'imprimante',
+                  ? 'Print job sent to printer'
+                  : 'Travail d\'impression envoyé à l\'imprimante',
             ),
           ],
         ),
@@ -500,22 +505,22 @@ class _InvoiceWidgetState extends State<InvoiceWidget> {
 
   void _handleEmail() async {
     if (_isProcessing || _isEmailSent) return;
-    
+
     setState(() {
       _isProcessing = true;
     });
 
     HapticFeedback.lightImpact();
-    
+
     // Simulate email sending delay
     await Future.delayed(const Duration(seconds: 2));
-    
+
     if (mounted) {
       setState(() {
         _isProcessing = false;
         _isEmailSent = true;
       });
-      
+
       HapticFeedback.selectionClick();
     }
   }

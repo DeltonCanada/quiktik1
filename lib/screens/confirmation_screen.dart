@@ -45,8 +45,7 @@ class ConfirmationScreen extends StatelessWidget {
                 _buildYourNumberCard(context, localizations),
                 const SizedBox(height: 24),
                 if (queueStatus != null) ...[
-                  _buildQueueStatusSection(
-                      context, queueStatus, localizations),
+                  _buildQueueStatusSection(context, queueStatus, localizations),
                   const SizedBox(height: 24),
                   _buildAvailableNumbersSection(
                       context, queueStatus, localizations),
@@ -66,9 +65,7 @@ class ConfirmationScreen extends StatelessWidget {
                     Navigator.of(context).popUntil((route) => route.isFirst);
                   },
                   child: Text(
-                    localizations.language == 'Language'
-                        ? 'Done'
-                        : 'Terminé',
+                    localizations.language == 'Language' ? 'Done' : 'Terminé',
                   ),
                 ),
               ],
@@ -131,8 +128,8 @@ class ConfirmationScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildQueueStatusSection(BuildContext context,
-      QueueStatus queueStatus, AppLocalizations localizations) {
+  Widget _buildQueueStatusSection(BuildContext context, QueueStatus queueStatus,
+      AppLocalizations localizations) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

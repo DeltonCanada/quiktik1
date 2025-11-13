@@ -112,15 +112,16 @@ class _MyFavoriteEstablishmentsWidgetState
             size: 24,
           ),
           const SizedBox(width: 12),
-          Text(
-            localizations.myFavoriteEstablishments,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).primaryColor,
+          Expanded(
+            child: Text(
+              localizations.myFavoriteEstablishments,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).primaryColor,
+              ),
             ),
           ),
-          const Spacer(),
           if (favoritesCount > 0) ...[
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -313,7 +314,8 @@ class FavoritesExplorerScreen extends StatefulWidget {
   const FavoritesExplorerScreen({super.key});
 
   @override
-  State<FavoritesExplorerScreen> createState() => _FavoritesExplorerScreenState();
+  State<FavoritesExplorerScreen> createState() =>
+      _FavoritesExplorerScreenState();
 }
 
 class _FavoritesExplorerScreenState extends State<FavoritesExplorerScreen> {
@@ -445,7 +447,9 @@ class _FavoriteEstablishmentTile extends StatelessWidget {
                 CircleAvatar(
                   backgroundColor: establishment.status.color,
                   child: Icon(
-                    establishment.isOpen ? Icons.store : Icons.store_mall_directory,
+                    establishment.isOpen
+                        ? Icons.store
+                        : Icons.store_mall_directory,
                     color: Colors.white,
                   ),
                 ),
@@ -514,7 +518,8 @@ class _StatusChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final localeCode = AppLocalizations.of(context)!.language == 'Language' ? 'en' : 'fr';
+    final localeCode =
+        AppLocalizations.of(context)!.language == 'Language' ? 'en' : 'fr';
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),

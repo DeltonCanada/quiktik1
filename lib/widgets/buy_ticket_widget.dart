@@ -75,9 +75,9 @@ class BuyTicketWidget extends StatelessWidget {
                   const Icon(Icons.location_on, size: 20),
                   const SizedBox(width: 8),
                   Text(
-                    localizations.language == 'Language' 
-                      ? 'Find Locations' 
-                      : 'Trouver des Emplacements',
+                    localizations.language == 'Language'
+                        ? 'Find Locations'
+                        : 'Trouver des Emplacements',
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -91,6 +91,4 @@ class BuyTicketWidget extends StatelessWidget {
       ),
     );
   }
-
-
 }

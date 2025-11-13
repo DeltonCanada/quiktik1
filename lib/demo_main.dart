@@ -35,7 +35,7 @@ class _QuikTikDemoScreenState extends State<QuikTikDemoScreen> {
 
   final List<String> _steps = [
     'Select Province',
-    'Select City', 
+    'Select City',
     'Select Establishment',
     'Payment Processing',
     'Queue Number Selection',
@@ -47,7 +47,7 @@ class _QuikTikDemoScreenState extends State<QuikTikDemoScreen> {
       _isRunning = true;
       _currentStep = 0;
     });
-    
+
     // Simulate the flow
     Future.delayed(const Duration(seconds: 2), () {
       if (mounted) {
@@ -56,7 +56,7 @@ class _QuikTikDemoScreenState extends State<QuikTikDemoScreen> {
         });
       }
     });
-    
+
     Future.delayed(const Duration(seconds: 4), () {
       if (mounted) {
         setState(() {
@@ -64,7 +64,7 @@ class _QuikTikDemoScreenState extends State<QuikTikDemoScreen> {
         });
       }
     });
-    
+
     Future.delayed(const Duration(seconds: 6), () {
       if (mounted) {
         setState(() {
@@ -72,7 +72,7 @@ class _QuikTikDemoScreenState extends State<QuikTikDemoScreen> {
         });
       }
     });
-    
+
     Future.delayed(const Duration(seconds: 8), () {
       if (mounted) {
         setState(() {
@@ -149,9 +149,9 @@ class _QuikTikDemoScreenState extends State<QuikTikDemoScreen> {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 30),
-            
+
             // Demo Button
             if (!_isRunning)
               ElevatedButton(
@@ -159,14 +159,15 @@ class _QuikTikDemoScreenState extends State<QuikTikDemoScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
                 ),
                 child: const Text(
                   'Start Demo Flow',
                   style: TextStyle(fontSize: 18),
                 ),
               ),
-            
+
             if (_isRunning) ...[
               // Progress Steps
               Container(
@@ -187,16 +188,17 @@ class _QuikTikDemoScreenState extends State<QuikTikDemoScreen> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    
+
                     // Progress indicator
                     LinearProgressIndicator(
                       value: (_currentStep + 1) / _steps.length,
                       backgroundColor: Colors.grey[300],
-                      valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
+                      valueColor:
+                          const AlwaysStoppedAnimation<Color>(Colors.blue),
                     ),
-                    
+
                     const SizedBox(height: 20),
-                    
+
                     // Step details
                     if (_currentStep == 4) ...[
                       Container(
@@ -261,7 +263,7 @@ class _QuikTikDemoScreenState extends State<QuikTikDemoScreen> {
                         ),
                       ),
                     ],
-                    
+
                     if (_currentStep == 5) ...[
                       Container(
                         padding: const EdgeInsets.all(16),
@@ -307,9 +309,9 @@ class _QuikTikDemoScreenState extends State<QuikTikDemoScreen> {
                   ],
                 ),
               ),
-              
+
               const SizedBox(height: 20),
-              
+
               // Feature List
               const Text(
                 'Implemented Features:',
@@ -319,7 +321,7 @@ class _QuikTikDemoScreenState extends State<QuikTikDemoScreen> {
                 ),
               ),
               const SizedBox(height: 10),
-              
+
               Expanded(
                 child: ListView(
                   children: const [
@@ -331,22 +333,26 @@ class _QuikTikDemoScreenState extends State<QuikTikDemoScreen> {
                     FeatureTile(
                       icon: Icons.payment,
                       title: 'Payment Processing',
-                      description: 'Credit/Debit cards, PayPal, Apple Pay, Google Pay',
+                      description:
+                          'Credit/Debit cards, PayPal, Apple Pay, Google Pay',
                     ),
                     FeatureTile(
                       icon: Icons.timer,
                       title: '10-Minute Timer',
-                      description: 'Queue number selection with automatic timeout',
+                      description:
+                          'Queue number selection with automatic timeout',
                     ),
                     FeatureTile(
                       icon: Icons.confirmation_number,
                       title: 'Active Tickets',
-                      description: 'Real-time queue status and position tracking',
+                      description:
+                          'Real-time queue status and position tracking',
                     ),
                     FeatureTile(
                       icon: Icons.receipt_long,
                       title: 'Invoice System',
-                      description: 'Professional invoices with print/email options',
+                      description:
+                          'Professional invoices with print/email options',
                     ),
                     FeatureTile(
                       icon: Icons.language,
@@ -368,7 +374,7 @@ class FeatureTile extends StatelessWidget {
   final IconData icon;
   final String title;
   final String description;
-  
+
   const FeatureTile({
     super.key,
     required this.icon,

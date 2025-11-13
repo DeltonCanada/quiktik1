@@ -21,7 +21,7 @@ class _ActiveTicketsScreenState extends State<ActiveTicketsScreen> {
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
-    
+
     return Scaffold(
       appBar: AppBar(
         title: Text(localizations.activeTickets),

@@ -19,7 +19,8 @@ class TicketConfirmationScreen extends StatefulWidget {
   });
 
   @override
-  State<TicketConfirmationScreen> createState() => _TicketConfirmationScreenState();
+  State<TicketConfirmationScreen> createState() =>
+      _TicketConfirmationScreenState();
 }
 
 class _TicketConfirmationScreenState extends State<TicketConfirmationScreen> {
@@ -41,21 +42,20 @@ class _TicketConfirmationScreenState extends State<TicketConfirmationScreen> {
     final localizations = AppLocalizations.of(context)!;
     final queueService = QueueService();
     final invoice = queueService.generateInvoice(widget.payment, widget.ticket);
-    
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          localizations.language == 'Language'
+        title: Text(localizations.language == 'Language'
             ? 'Purchase Confirmed'
-            : 'Achat Confirmé'
-        ),
+            : 'Achat Confirmé'),
         backgroundColor: Colors.green,
         foregroundColor: Colors.white,
         automaticallyImplyLeading: false,
         actions: [
           IconButton(
             icon: const Icon(Icons.home),
-            onPressed: () => Navigator.of(context).popUntil((route) => route.isFirst),
+            onPressed: () =>
+                Navigator.of(context).popUntil((route) => route.isFirst),
             tooltip: localizations.language == 'Language' ? 'Home' : 'Accueil',
           ),
         ],
@@ -92,8 +92,8 @@ class _TicketConfirmationScreenState extends State<TicketConfirmationScreen> {
                   const SizedBox(height: 16),
                   Text(
                     localizations.language == 'Language'
-                      ? 'Queue Number Purchased!'
-                      : 'Numéro de File Acheté!',
+                        ? 'Queue Number Purchased!'
+                        : 'Numéro de File Acheté!',
                     style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -104,8 +104,8 @@ class _TicketConfirmationScreenState extends State<TicketConfirmationScreen> {
                   const SizedBox(height: 8),
                   Text(
                     localizations.language == 'Language'
-                      ? 'Your queue number is ready'
-                      : 'Votre numéro de file est prêt',
+                        ? 'Your queue number is ready'
+                        : 'Votre numéro de file est prêt',
                     style: const TextStyle(
                       fontSize: 16,
                       color: Colors.white70,
@@ -114,13 +114,14 @@ class _TicketConfirmationScreenState extends State<TicketConfirmationScreen> {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Ticket details card
             Card(
               elevation: 4,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
               child: Padding(
                 padding: const EdgeInsets.all(20),
                 child: Column(
@@ -131,7 +132,9 @@ class _TicketConfirmationScreenState extends State<TicketConfirmationScreen> {
                         Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                            color: Theme.of(context)
+                                .primaryColor
+                                .withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
@@ -167,29 +170,36 @@ class _TicketConfirmationScreenState extends State<TicketConfirmationScreen> {
                     Divider(color: Colors.grey[300]),
                     const SizedBox(height: 16),
                     _buildDetailRow(
-                      localizations.language == 'Language' ? 'Purchase Time' : 'Heure d\'Achat',
+                      localizations.language == 'Language'
+                          ? 'Purchase Time'
+                          : 'Heure d\'Achat',
                       _formatDateTime(widget.ticket.purchaseTime),
                       Icons.access_time,
                     ),
                     const SizedBox(height: 8),
                     _buildDetailRow(
-                      localizations.language == 'Language' ? 'Amount Paid' : 'Montant Payé',
+                      localizations.language == 'Language'
+                          ? 'Amount Paid'
+                          : 'Montant Payé',
                       '\$${widget.payment.amount.toStringAsFixed(2)}',
                       Icons.payment,
                     ),
                     const SizedBox(height: 8),
                     _buildDetailRow(
-                      localizations.language == 'Language' ? 'Payment Method' : 'Mode de Paiement',
-                      widget.payment.method.getDisplayText(Localizations.localeOf(context).languageCode),
+                      localizations.language == 'Language'
+                          ? 'Payment Method'
+                          : 'Mode de Paiement',
+                      widget.payment.method.getDisplayText(
+                          Localizations.localeOf(context).languageCode),
                       widget.payment.method.icon,
                     ),
                   ],
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Action buttons
             Row(
               children: [
@@ -211,8 +221,8 @@ class _TicketConfirmationScreenState extends State<TicketConfirmationScreen> {
                         const SizedBox(width: 8),
                         Text(
                           localizations.language == 'Language'
-                            ? 'Mis Boletos'
-                            : 'Mes Billets',
+                              ? 'Mis Boletos'
+                              : 'Mes Billets',
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ],
@@ -238,8 +248,8 @@ class _TicketConfirmationScreenState extends State<TicketConfirmationScreen> {
                         const SizedBox(width: 8),
                         Text(
                           localizations.language == 'Language'
-                            ? 'Factura'
-                            : 'Facture',
+                              ? 'Factura'
+                              : 'Facture',
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ],
@@ -248,17 +258,18 @@ class _TicketConfirmationScreenState extends State<TicketConfirmationScreen> {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             SizedBox(
               width: double.infinity,
               child: TextButton(
-                onPressed: () => Navigator.of(context).popUntil((route) => route.isFirst),
+                onPressed: () =>
+                    Navigator.of(context).popUntil((route) => route.isFirst),
                 child: Text(
                   localizations.language == 'Language'
-                    ? 'Return to Home'
-                    : 'Retour à l\'Accueil',
+                      ? 'Return to Home'
+                      : 'Retour à l\'Accueil',
                   style: TextStyle(
                     color: Colors.grey[600],
                     fontSize: 16,

@@ -271,7 +271,8 @@ class Invoice {
   });
 
   factory Invoice.generate(QueueTicket ticket, Payment payment) {
-    final invoiceNumber = 'QT-${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}';
+    final invoiceNumber =
+        'QT-${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}';
     final item = InvoiceItem(
       description: 'Queue Number #${ticket.queueNumber}',
       quantity: 1,

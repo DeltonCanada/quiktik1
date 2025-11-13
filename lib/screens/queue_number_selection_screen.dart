@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:math';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../utils/app_localizations.dart';
 import '../models/location_models.dart';
@@ -34,8 +34,17 @@ class _QueueNumberSelectionScreenState
   @override
   void initState() {
     super.initState();
+    debugPrint('🚀 Initializing Queue Number Selection Screen');
     _loadAvailableNumbers();
     _startTimer();
+
+    // Ensure we always have numbers - double check after a delay
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (_availableNumbers.isEmpty) {
+        debugPrint('⚠️ No numbers after delay, force generating...');
+        _generateFallbackNumbers();
+      }
+    });
   }
 
   @override
@@ -45,24 +54,43 @@ class _QueueNumberSelectionScreenState
   }
 
   void _loadAvailableNumbers() {
+    debugPrint(
+        '🔍 Loading available numbers for establishment: ${widget.establishment.id}');
+
+    // First, ensure the queue is initialized for this establishment
+    _queueService.initializeQueues([widget.establishment]);
+    
     final queueStatus = _queueService.getQueueStatus(widget.establishment.id);
+    debugPrint('📊 Queue status: $queueStatus');
+
     if (queueStatus != null) {
+      debugPrint(
+          '✅ Found queue status with ${queueStatus.availableNumbers.length} numbers');
+      debugPrint('📋 Raw available numbers: ${queueStatus.availableNumbers}');
+      debugPrint('🎯 Currently serving: ${queueStatus.currentlyServing}');
+      debugPrint('👥 Total waiting: ${queueStatus.totalWaiting}');
+      
       setState(() {
         // Ensure exactly 5 numbers are available
         _availableNumbers = queueStatus.availableNumbers.take(5).toList();
+        debugPrint('🎯 Available numbers after processing: $_availableNumbers');
         // If somehow less than 5, generate additional numbers
         if (_availableNumbers.length < 5) {
+          debugPrint('⚠️ Less than 5 numbers, generating additional...');
           _generateAdditionalNumbers();
         }
       });
     } else {
+      debugPrint('❌ No queue status found, generating fallback numbers');
       // Fallback: generate 5 random available numbers
       _generateFallbackNumbers();
     }
+
+    debugPrint('🎲 Final available numbers: $_availableNumbers (count: ${_availableNumbers.length})');
   }
 
   void _generateAdditionalNumbers() {
-    final Random random = Random();
+    final math.Random random = math.Random();
     final Set<int> existingNumbers = Set.from(_availableNumbers);
     int nextNumber = _availableNumbers.isNotEmpty
         ? _availableNumbers.last + 1
@@ -80,7 +108,8 @@ class _QueueNumberSelectionScreenState
   }
 
   void _generateFallbackNumbers() {
-    final Random random = Random();
+    debugPrint('🎯 Generating fallback numbers...');
+    final math.Random random = math.Random();
     final Set<int> numbers = {};
     final int baseNumber = random.nextInt(50) + 20; // Start from 20-70
 
@@ -91,6 +120,7 @@ class _QueueNumberSelectionScreenState
 
     setState(() {
       _availableNumbers = numbers.toList()..sort();
+      debugPrint('✅ Generated fallback numbers: $_availableNumbers');
     });
   }
 
@@ -171,10 +201,11 @@ class _QueueNumberSelectionScreenState
           ),
         ],
       ),
-      body: Column(
-        children: [
-          // Timer and establishment info
-          Container(
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            // Timer and establishment info
+            Container(
             width: double.infinity,
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
@@ -238,15 +269,72 @@ class _QueueNumberSelectionScreenState
                         ),
                       ),
                       if (queueStatus != null) ...[
+                        const SizedBox(height: 8),
+                        // Current serving number
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.record_voice_over,
+                              color: Colors.white70,
+                              size: 16,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              localizations.language == 'Language'
+                                  ? 'Now Serving: #${queueStatus.currentlyServing}'
+                                  : 'Actuellement: #${queueStatus.currentlyServing}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
                         const SizedBox(height: 4),
-                        Text(
-                          localizations.language == 'Language'
-                              ? 'Currently serving: #${queueStatus.currentlyServing}'
-                              : 'Actuellement servi: #${queueStatus.currentlyServing}',
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 12,
-                          ),
+                        // Total waiting
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.people_outline,
+                              color: Colors.white70,
+                              size: 16,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              localizations.language == 'Language'
+                                  ? '${queueStatus.totalWaiting} people waiting'
+                                  : '${queueStatus.totalWaiting} personnes en attente',
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        // Available numbers count
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.confirmation_number,
+                              color: Colors.white70,
+                              size: 16,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              localizations.language == 'Language'
+                                  ? '${_availableNumbers.length} tickets available'
+                                  : '${_availableNumbers.length} tickets disponibles',
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ],
@@ -285,11 +373,123 @@ class _QueueNumberSelectionScreenState
             ),
           ),
 
-          // Instructions section
+          // Payment Success & Queue Information
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(16),
-            margin: const EdgeInsets.all(16),
+            margin: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Colors.green[50]!,
+                  Colors.green[100]!,
+                ],
+              ),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Colors.green[300]!,
+                width: 2,
+              ),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.green[600],
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: const Icon(
+                        Icons.check,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      localizations.language == 'Language'
+                          ? 'Payment Successful!'
+                          : 'Paiement Réussi!',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green[700],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.green[200]!),
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            localizations.language == 'Language'
+                                ? 'Queue Access Fee:'
+                                : 'Frais d\'accès:',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[700],
+                            ),
+                          ),
+                          Text(
+                            '\$${widget.payment.amount.toStringAsFixed(2)}',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green[700],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            localizations.language == 'Language'
+                                ? 'Payment Method:'
+                                : 'Méthode de paiement:',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[700],
+                            ),
+                          ),
+                          Text(
+                            widget.payment.method.name.toUpperCase(),
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.grey[700],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          
+          const SizedBox(height: 16),
+
+          // Queue Selection Instructions
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            margin: const EdgeInsets.symmetric(horizontal: 16),
             decoration: BoxDecoration(
               color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
@@ -308,8 +508,8 @@ class _QueueNumberSelectionScreenState
                 const SizedBox(height: 12),
                 Text(
                   localizations.language == 'Language'
-                      ? 'Select Your Ticket Line Number'
-                      : 'Sélectionnez Votre Ticket Line',
+                      ? 'Choose Your Queue Number'
+                      : 'Choisissez Votre Numéro',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -320,8 +520,8 @@ class _QueueNumberSelectionScreenState
                 const SizedBox(height: 8),
                 Text(
                   localizations.language == 'Language'
-                      ? '5 ticket line numbers are available below. Choose one ticket line to secure your spot.'
-                      : '5 tickets line sont disponibles ci-dessous. Choisissez-en un pour réserver votre place.',
+                      ? 'Select from ${_availableNumbers.length} available queue numbers below. Each shows estimated wait time.'
+                      : 'Sélectionnez parmi ${_availableNumbers.length} numéros disponibles ci-dessous. Chacun montre le temps d\'attente estimé.',
                   style: TextStyle(
                     fontSize: 14,
                     color: Colors.grey[700],
@@ -332,12 +532,13 @@ class _QueueNumberSelectionScreenState
             ),
           ),
 
+          // Queue Status Summary
+          _buildQueueStatusSummary(localizations),
+
           // Available numbers
-          Expanded(
-            child: _availableNumbers.isEmpty
-                ? _buildEmptyState(localizations)
-                : _buildNumberGrid(),
-          ),
+          _availableNumbers.isEmpty
+              ? _buildEmptyState(localizations)
+              : _buildNumberGrid(),
 
           // Confirm button
           if (_selectedNumber != null)
@@ -392,8 +593,207 @@ class _QueueNumberSelectionScreenState
                       ),
               ),
             ),
-        ],
+          ],
+        ),
       ),
+    );
+  }
+
+  Widget _buildQueueStatusSummary(AppLocalizations localizations) {
+    final queueStatus = _queueService.getQueueStatus(widget.establishment.id);
+    final currentlyServing = queueStatus?.currentlyServing ?? 0;
+    final totalWaiting = queueStatus?.totalWaiting ?? 0;
+    
+    return Column(
+      children: [
+        // Currently Serving - Large prominent display
+        Container(
+          width: double.infinity,
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.green[400]!, Colors.green[600]!],
+            ),
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.green.withValues(alpha: 0.3),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              const Icon(
+                Icons.record_voice_over,
+                color: Colors.white,
+                size: 32,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                localizations.language == 'Language'
+                    ? 'NOW SERVING'
+                    : 'ACTUELLEMENT SERVI',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.2,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                '#$currentlyServing',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 48,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                localizations.language == 'Language'
+                    ? '$totalWaiting people waiting'
+                    : '$totalWaiting personnes en attente',
+                style: const TextStyle(
+                  color: Colors.white70,
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
+        ),
+        
+        // Queue Statistics
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.blue[50]!, Colors.blue[100]!],
+            ),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.blue[300]!),
+          ),
+          child: Column(
+            children: [
+              Text(
+                localizations.language == 'Language'
+                    ? 'Queue Information'
+                    : 'Informations sur la File',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue[800],
+                ),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildStatusItem(
+                    Icons.confirmation_number,
+                    localizations.language == 'Language' 
+                        ? 'Available' 
+                        : 'Disponible',
+                    '${_availableNumbers.length}',
+                    Colors.blue,
+                  ),
+                  _buildStatusItem(
+                    Icons.people_outline,
+                    localizations.language == 'Language' 
+                        ? 'In Queue' 
+                        : 'Dans la File',
+                    '$totalWaiting',
+                    Colors.orange,
+                  ),
+                  _buildStatusItem(
+                    Icons.schedule,
+                    localizations.language == 'Language' 
+                        ? 'Est. Wait' 
+                        : 'Attente Est.',
+                    '${(totalWaiting * 3).clamp(0, 60)}m',
+                    Colors.purple,
+                  ),
+                ],
+              ),
+              if (_availableNumbers.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.blue[200]!),
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        localizations.language == 'Language'
+                            ? 'Available Queue Numbers'
+                            : 'Numéros de File Disponibles',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue[800],
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        children: _availableNumbers.map((number) => Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12, 
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.blue[50],
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: Colors.blue[300]!),
+                          ),
+                          child: Text(
+                            '#$number',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue[700],
+                            ),
+                          ),
+                        )).toList(),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatusItem(IconData icon, String label, String value, Color color) {
+    return Column(
+      children: [
+        Icon(icon, color: color, size: 24),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
+        ),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.grey[600],
+          ),
+        ),
+      ],
     );
   }
 
@@ -427,81 +827,141 @@ class _QueueNumberSelectionScreenState
               color: Colors.grey[500],
             ),
           ),
+          const SizedBox(height: 20),
+          ElevatedButton.icon(
+            onPressed: () {
+              debugPrint('🔄 Manual refresh requested');
+              _generateFallbackNumbers();
+            },
+            icon: const Icon(Icons.refresh),
+            label: Text(
+              localizations.language == 'Language'
+                  ? 'Refresh Numbers'
+                  : 'Actualiser les Numéros',
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).primaryColor,
+              foregroundColor: Colors.white,
+            ),
+          ),
         ],
       ),
     );
   }
 
   Widget _buildNumberGrid() {
-    return Padding(
+    return Container(
+      margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withValues(alpha: 0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           // Header text
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.purple[400]!, Colors.purple[600]!],
+              ),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.touch_app,
+                  color: Colors.white,
+                  size: 24,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  AppLocalizations.of(context)!.language == 'Language'
+                      ? 'SELECT YOUR QUEUE NUMBER'
+                      : 'SÉLECTIONNEZ VOTRE NUMÉRO',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    letterSpacing: 0.8,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          
           Text(
             AppLocalizations.of(context)!.language == 'Language'
-                ? 'Ticket Line Numbers Available (5 total)'
-                : 'Tickets Line Disponibles (5 au total)',
+                ? 'Choose from ${_availableNumbers.length} available numbers below'
+                : 'Choisissez parmi ${_availableNumbers.length} numéros disponibles ci-dessous',
             style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).primaryColor,
+              fontSize: 14,
+              color: Colors.grey[700],
             ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 20),
 
-          // Numbers grid - optimized for 5 numbers
-          Expanded(
-            child: _availableNumbers.length <= 3
-                ? _buildHorizontalLayout()
-                : _buildGridLayout(),
-          ),
+          // Numbers grid - always use grid layout for consistency
+          _buildGridLayout(),
         ],
       ),
     );
   }
 
-  Widget _buildHorizontalLayout() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: _availableNumbers
-          .map(
-            (number) => Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: _buildNumberCard(number, true),
-              ),
-            ),
-          )
-          .toList(),
-    );
-  }
-
   Widget _buildGridLayout() {
+    // Determine optimal layout based on number count
+    int crossAxisCount = 2;
+    double childAspectRatio = 1.2;
+    
+    if (_availableNumbers.length <= 3) {
+      crossAxisCount = _availableNumbers.length;
+      childAspectRatio = 1.0;
+    } else if (_availableNumbers.length == 4) {
+      crossAxisCount = 2;
+      childAspectRatio = 1.1;
+    } else {
+      crossAxisCount = 3;
+      childAspectRatio = 1.0;
+    }
+    
     return GridView.builder(
       shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount:
-            _availableNumbers.length == 5 ? 3 : 2, // 3 columns for 5 numbers
+        crossAxisCount: crossAxisCount,
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
-        childAspectRatio: 1.3,
+        childAspectRatio: childAspectRatio,
       ),
       itemCount: _availableNumbers.length,
       itemBuilder: (context, index) {
         final number = _availableNumbers[index];
-        return _buildNumberCard(number, false);
+        return _buildNumberCard(number);
       },
     );
   }
 
-  Widget _buildNumberCard(int number, bool isHorizontal) {
+  Widget _buildNumberCard(int number) {
     final isSelected = _selectedNumber == number;
+    final queueStatus = _queueService.getQueueStatus(widget.establishment.id);
+    final currentlyServing = queueStatus?.currentlyServing ?? 0;
+    final peopleAhead = math.max(0, number - currentlyServing - 1);
+    final estimatedWaitMinutes = peopleAhead * 5; // Estimate 5 minutes per person
 
-    return AspectRatio(
-      aspectRatio: isHorizontal ? 1.2 : 1.3,
-      child: Card(
+    return Card(
         elevation: isSelected ? 8 : 2,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
@@ -534,39 +994,29 @@ class _QueueNumberSelectionScreenState
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  AppLocalizations.of(context)!.language == 'Language'
-                      ? 'Ticket Line'
-                      : 'Ticket Line',
-                  style: TextStyle(
-                    fontSize: isHorizontal ? 12 : 14,
-                    fontWeight: FontWeight.w600,
-                    color: isSelected
-                        ? Theme.of(context).primaryColor
-                        : Colors.grey[600],
-                  ),
-                ),
-                const SizedBox(height: 6),
+                // Queue Number
                 Text(
                   '#$number',
                   style: TextStyle(
-                    fontSize: isHorizontal ? 24 : 32,
+                    fontSize: 32,
                     fontWeight: FontWeight.bold,
                     color: isSelected
                         ? Theme.of(context).primaryColor
                         : Colors.grey[700],
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 4),
+                
+                // Status Badge
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 4,
+                    horizontal: 8,
+                    vertical: 2,
                   ),
                   decoration: BoxDecoration(
                     color: isSelected
                         ? Theme.of(context).primaryColor
-                        : Colors.grey[300],
+                        : Colors.green[100],
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
@@ -574,17 +1024,85 @@ class _QueueNumberSelectionScreenState
                         ? 'Available'
                         : 'Disponible',
                     style: TextStyle(
-                      fontSize: 10,
+                      fontSize: 9,
                       fontWeight: FontWeight.bold,
-                      color: isSelected ? Colors.white : Colors.grey[600],
+                      color: isSelected ? Colors.white : Colors.green[700],
                     ),
                   ),
                 ),
+                
+                const SizedBox(height: 6),
+                
+                // Wait Time Info
+                if (peopleAhead > 0) ...[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.people,
+                        size: 12,
+                        color: Colors.grey[600],
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '$peopleAhead',
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: Colors.grey[600],
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.access_time,
+                        size: 12,
+                        color: Colors.grey[600],
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        estimatedWaitMinutes > 60 
+                            ? '${(estimatedWaitMinutes / 60).ceil()}h'
+                            : '${estimatedWaitMinutes}min',
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: Colors.grey[600],
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ] else ...[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.flash_on,
+                        size: 12,
+                        color: Colors.orange[700],
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        AppLocalizations.of(context)!.language == 'Language'
+                            ? 'Next Up!'
+                            : 'Suivant!',
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: Colors.orange[700],
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ],
             ),
           ),
         ),
-      ),
     );
   }
 

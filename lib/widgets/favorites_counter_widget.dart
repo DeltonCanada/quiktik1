@@ -23,12 +23,12 @@ class _FavoritesCounterWidgetState extends State<FavoritesCounterWidget>
     super.initState();
     _favoritesService.addListener(_onFavoritesChanged);
     _previousCount = _favoritesService.favoritesCount;
-    
+
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 500),
       vsync: this,
     );
-    
+
     _scaleAnimation = Tween<double>(
       begin: 1.0,
       end: 1.3,
@@ -63,7 +63,7 @@ class _FavoritesCounterWidgetState extends State<FavoritesCounterWidget>
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
     final count = _favoritesService.favoritesCount;
-    
+
     return AnimatedBuilder(
       animation: _scaleAnimation,
       builder: (context, child) {
@@ -73,18 +73,26 @@ class _FavoritesCounterWidgetState extends State<FavoritesCounterWidget>
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: count > 0 
-                    ? [Colors.red.withValues(alpha: 0.8), Colors.pink.withValues(alpha: 0.6)]
-                    : [Colors.grey.withValues(alpha: 0.3), Colors.grey.withValues(alpha: 0.2)],
+                colors: count > 0
+                    ? [
+                        Colors.red.withValues(alpha: 0.8),
+                        Colors.pink.withValues(alpha: 0.6)
+                      ]
+                    : [
+                        Colors.grey.withValues(alpha: 0.3),
+                        Colors.grey.withValues(alpha: 0.2)
+                      ],
               ),
               borderRadius: BorderRadius.circular(20),
-              boxShadow: count > 0 ? [
-                BoxShadow(
-                  color: Colors.red.withValues(alpha: 0.3),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ] : null,
+              boxShadow: count > 0
+                  ? [
+                      BoxShadow(
+                        color: Colors.red.withValues(alpha: 0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ]
+                  : null,
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,

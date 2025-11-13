@@ -96,7 +96,9 @@ extension EstablishmentStatusExtension on EstablishmentStatus {
       case EstablishmentStatus.closed:
         return languageCode == 'fr' ? 'Fermé' : 'Closed';
       case EstablishmentStatus.temporarilyClosed:
-        return languageCode == 'fr' ? 'Temporairement fermé' : 'Temporarily Closed';
+        return languageCode == 'fr'
+            ? 'Temporairement fermé'
+            : 'Temporarily Closed';
     }
   }
 

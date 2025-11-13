@@ -99,7 +99,7 @@ class _FavoritesFlowDemoState extends State<FavoritesFlowDemo> {
 
     final localizations = AppLocalizations.of(context)!;
     final isFavorite = _favoritesService.isFavorite(establishment.id);
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
@@ -112,7 +112,7 @@ class _FavoritesFlowDemoState extends State<FavoritesFlowDemo> {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                isFavorite 
+                isFavorite
                     ? '${localizations.language == 'Language' ? 'Added' : 'Ajouté'} ${establishment.name} ${localizations.language == 'Language' ? 'to favorites' : 'aux favoris'}'
                     : '${localizations.language == 'Language' ? 'Removed' : 'Retiré'} ${establishment.name} ${localizations.language == 'Language' ? 'from favorites' : 'des favoris'}',
               ),
@@ -144,7 +144,7 @@ class _FavoritesFlowDemoState extends State<FavoritesFlowDemo> {
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
-    
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -196,7 +196,7 @@ class _FavoritesFlowDemoState extends State<FavoritesFlowDemo> {
               ],
             ),
           ),
-          
+
           // My Favorites Widget - This will update automatically
           Expanded(
             flex: 2,
@@ -223,7 +223,8 @@ class _FavoritesFlowDemoState extends State<FavoritesFlowDemo> {
                       ),
                       const Spacer(),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
                           color: Theme.of(context).primaryColor,
                           borderRadius: BorderRadius.circular(12),
@@ -247,9 +248,9 @@ class _FavoritesFlowDemoState extends State<FavoritesFlowDemo> {
               ),
             ),
           ),
-          
+
           const Divider(thickness: 2),
-          
+
           // Available Establishments to mark as favorites
           Expanded(
             flex: 3,
@@ -273,22 +274,27 @@ class _FavoritesFlowDemoState extends State<FavoritesFlowDemo> {
                       itemCount: _availableEstablishments.length,
                       itemBuilder: (context, index) {
                         final establishment = _availableEstablishments[index];
-                        final isFavorite = _favoritesService.isFavorite(establishment.id);
-                        
+                        final isFavorite =
+                            _favoritesService.isFavorite(establishment.id);
+
                         return Card(
                           margin: const EdgeInsets.only(bottom: 8),
                           child: ListTile(
                             leading: CircleAvatar(
-                              backgroundColor: establishment.status.color.withValues(alpha: 0.1),
+                              backgroundColor: establishment.status.color
+                                  .withValues(alpha: 0.1),
                               child: Icon(
-                                establishment.isOpen ? Icons.store : Icons.store_mall_directory,
+                                establishment.isOpen
+                                    ? Icons.store
+                                    : Icons.store_mall_directory,
                                 color: establishment.status.color,
                                 size: 20,
                               ),
                             ),
                             title: Text(
                               establishment.name,
-                              style: const TextStyle(fontWeight: FontWeight.bold),
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold),
                             ),
                             subtitle: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -296,15 +302,18 @@ class _FavoritesFlowDemoState extends State<FavoritesFlowDemo> {
                                 Text(establishment.address),
                                 const SizedBox(height: 4),
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 2),
                                   decoration: BoxDecoration(
-                                    color: establishment.status.color.withValues(alpha: 0.1),
+                                    color: establishment.status.color
+                                        .withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Text(
                                     establishment.status.getDisplayText(
-                                      localizations.language == 'Language' ? 'en' : 'fr'
-                                    ),
+                                        localizations.language == 'Language'
+                                            ? 'en'
+                                            : 'fr'),
                                     style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,
@@ -316,8 +325,11 @@ class _FavoritesFlowDemoState extends State<FavoritesFlowDemo> {
                             ),
                             trailing: IconButton(
                               icon: Icon(
-                                isFavorite ? Icons.favorite : Icons.favorite_border,
-                                color: isFavorite ? Colors.red : Colors.grey[600],
+                                isFavorite
+                                    ? Icons.favorite
+                                    : Icons.favorite_border,
+                                color:
+                                    isFavorite ? Colors.red : Colors.grey[600],
                                 size: 28,
                               ),
                               onPressed: () => _toggleFavorite(establishment),

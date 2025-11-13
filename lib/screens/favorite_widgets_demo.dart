@@ -41,7 +41,7 @@ class _FavoriteWidgetsDemoState extends State<FavoriteWidgetsDemo> {
         phoneNumber: '(306) 555-0123',
       ),
       Establishment(
-        id: 'sample_2', 
+        id: 'sample_2',
         name: 'QuikTik Mall',
         address: '456 Shopping Center Blvd',
         cityId: 'city_1',
@@ -137,8 +137,8 @@ class _FavoriteWidgetsDemoState extends State<FavoriteWidgetsDemo> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
-                        color: _selectedTab == 0 
-                            ? Theme.of(context).primaryColor 
+                        color: _selectedTab == 0
+                            ? Theme.of(context).primaryColor
                             : Colors.transparent,
                         borderRadius: BorderRadius.circular(25),
                       ),
@@ -146,7 +146,8 @@ class _FavoriteWidgetsDemoState extends State<FavoriteWidgetsDemo> {
                         'Original Widget',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          color: _selectedTab == 0 ? Colors.white : Colors.black87,
+                          color:
+                              _selectedTab == 0 ? Colors.white : Colors.black87,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -159,8 +160,8 @@ class _FavoriteWidgetsDemoState extends State<FavoriteWidgetsDemo> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
-                        color: _selectedTab == 1 
-                            ? Theme.of(context).primaryColor 
+                        color: _selectedTab == 1
+                            ? Theme.of(context).primaryColor
                             : Colors.transparent,
                         borderRadius: BorderRadius.circular(25),
                       ),
@@ -168,7 +169,8 @@ class _FavoriteWidgetsDemoState extends State<FavoriteWidgetsDemo> {
                         'Enhanced Widget',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          color: _selectedTab == 1 ? Colors.white : Colors.black87,
+                          color:
+                              _selectedTab == 1 ? Colors.white : Colors.black87,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -178,7 +180,7 @@ class _FavoriteWidgetsDemoState extends State<FavoriteWidgetsDemo> {
               ],
             ),
           ),
-          
+
           // Widget display area
           Expanded(
             child: Padding(
@@ -189,16 +191,18 @@ class _FavoriteWidgetsDemoState extends State<FavoriteWidgetsDemo> {
                       children: [
                         Text(
                           'Original My Favorite Establishments Widget',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style:
+                              Theme.of(context).textTheme.titleLarge?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                         ),
                         const SizedBox(height: 8),
                         Text(
                           'This is the existing widget with its current styling and functionality.',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Colors.grey[600],
-                          ),
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: Colors.grey[600],
+                                  ),
                         ),
                         const SizedBox(height: 16),
                         const Expanded(
@@ -211,26 +215,29 @@ class _FavoriteWidgetsDemoState extends State<FavoriteWidgetsDemo> {
                       children: [
                         Text(
                           'Enhanced Favorite Establishments Widget',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style:
+                              Theme.of(context).textTheme.titleLarge?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                         ),
                         const SizedBox(height: 8),
                         Text(
                           'Enhanced version with animations, better styling, and improved user experience.',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Colors.grey[600],
-                          ),
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: Colors.grey[600],
+                                  ),
                         ),
                         const SizedBox(height: 16),
                         const Expanded(
-                          child: EnhancedFavoriteEstablishmentsWidget(isCompact: false),
+                          child: EnhancedFavoriteEstablishmentsWidget(
+                              isCompact: false),
                         ),
                       ],
                     ),
             ),
           ),
-          
+
           // Compact mode demo for enhanced widget
           if (_selectedTab == 1) ...[
             const Divider(),
@@ -242,8 +249,8 @@ class _FavoriteWidgetsDemoState extends State<FavoriteWidgetsDemo> {
                   Text(
                     'Compact Mode Example',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
                   const SizedBox(height: 8),
                   const SizedBox(

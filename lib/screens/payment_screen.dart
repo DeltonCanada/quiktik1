@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'confirmation_screen.dart';
+import 'queue_number_selection_screen.dart';
 import '../utils/app_localizations.dart';
 import '../models/location_models.dart';
 import '../models/queue_models.dart';
@@ -36,15 +36,14 @@ class _PaymentScreenState extends State<PaymentScreen> {
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
     final queueService = Provider.of<QueueService>(context, listen: false);
-    final userTicketCount = queueService.getUserTicketCountForEstablishment(widget.establishment.id);
-    
+    final userTicketCount = queueService
+        .getUserTicketCountForEstablishment(widget.establishment.id);
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          localizations.language == 'Language' 
-            ? 'Payment Required' 
-            : 'Paiement Requis'
-        ),
+        title: Text(localizations.language == 'Language'
+            ? 'Payment Required'
+            : 'Paiement Requis'),
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
       ),
@@ -56,7 +55,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
             // Establishment info card
             Card(
               elevation: 4,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -107,8 +107,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
                           Expanded(
                             child: Text(
                               localizations.language == 'Language'
-                                ? 'You have $userTicketCount/4 queue tickets for this establishment'
-                                : 'Vous avez $userTicketCount/4 billets de file pour cet établissement',
+                                  ? 'You have $userTicketCount/4 queue tickets for this establishment'
+                                  : 'Vous avez $userTicketCount/4 billets de file pour cet établissement',
                               style: TextStyle(
                                 color: Colors.orange[700],
                                 fontSize: 12,
@@ -122,9 +122,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Payment amount
             Container(
               width: double.infinity,
@@ -142,8 +142,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 children: [
                   Text(
                     localizations.language == 'Language'
-                      ? 'Queue Access Fee'
-                      : 'Frais d\'Accès à la File',
+                        ? 'Queue Access Fee'
+                        : 'Frais d\'Accès à la File',
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
@@ -160,8 +160,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   ),
                   Text(
                     localizations.language == 'Language'
-                      ? 'per queue number'
-                      : 'par numéro de file',
+                        ? 'per queue number'
+                        : 'par numéro de file',
                     style: const TextStyle(
                       color: Colors.white70,
                       fontSize: 12,
@@ -170,21 +170,21 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Payment method selection
             Text(
               localizations.language == 'Language'
-                ? 'Select Payment Method'
-                : 'Sélectionnez le Mode de Paiement',
+                  ? 'Select Payment Method'
+                  : 'Sélectionnez le Mode de Paiement',
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 16),
-            
+
             RadioGroup<PaymentMethod>(
               onChanged: (PaymentMethod? value) {
                 if (value != null) {
@@ -194,27 +194,31 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 }
               },
               child: Column(
-                children: PaymentMethod.values.map((method) => 
-                  _buildPaymentMethodTile(method, localizations)
-                ).toList(),
+                children: PaymentMethod.values
+                    .map((method) =>
+                        _buildPaymentMethodTile(method, localizations))
+                    .toList(),
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Payment form based on selected method
-            if (_selectedMethod == PaymentMethod.creditCard || _selectedMethod == PaymentMethod.debitCard)
+            if (_selectedMethod == PaymentMethod.creditCard ||
+                _selectedMethod == PaymentMethod.debitCard)
               _buildCardPaymentForm(localizations),
-            
+
             const SizedBox(height: 32),
-            
+
             // Action buttons
             Row(
               children: [
                 // Cancel button
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: _isProcessing ? null : () => Navigator.of(context).pop(),
+                    onPressed: _isProcessing
+                        ? null
+                        : () => Navigator.of(context).pop(),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Colors.grey[600],
                       side: BorderSide(color: Colors.grey[400]!),
@@ -230,8 +234,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         const SizedBox(width: 8),
                         Text(
                           localizations.language == 'Language'
-                            ? 'Cancel'
-                            : 'Annuler',
+                              ? 'Cancel'
+                              : 'Annuler',
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -256,41 +260,41 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       ),
                     ),
                     child: _isProcessing
-                      ? Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 2,
+                        ? Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2,
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 12),
-                            Text(
-                              localizations.language == 'Language'
-                                ? 'Processing...'
-                                : 'Traitement...',
-                            ),
-                          ],
-                        )
-                      : Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.payment, size: 20),
-                            const SizedBox(width: 8),
-                            Text(
-                              localizations.language == 'Language'
-                                ? 'Pay \$${QueueService.queueAccessFee.toStringAsFixed(2)}'
-                                : 'Payer \$${QueueService.queueAccessFee.toStringAsFixed(2)}',
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
+                              const SizedBox(width: 12),
+                              Text(
+                                localizations.language == 'Language'
+                                    ? 'Processing...'
+                                    : 'Traitement...',
                               ),
-                            ),
-                          ],
-                        ),
+                            ],
+                          )
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.payment, size: 20),
+                              const SizedBox(width: 8),
+                              Text(
+                                localizations.language == 'Language'
+                                    ? 'Pay \$${QueueService.queueAccessFee.toStringAsFixed(2)}'
+                                    : 'Payer \$${QueueService.queueAccessFee.toStringAsFixed(2)}',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
                   ),
                 ),
               ],
@@ -301,16 +305,18 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 
-  Widget _buildPaymentMethodTile(PaymentMethod method, AppLocalizations localizations) {
+  Widget _buildPaymentMethodTile(
+      PaymentMethod method, AppLocalizations localizations) {
     final isSelected = _selectedMethod == method;
-    
+
     return Card(
       elevation: isSelected ? 4 : 1,
       margin: const EdgeInsets.only(bottom: 8),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
         side: BorderSide(
-          color: isSelected ? Theme.of(context).primaryColor : Colors.transparent,
+          color:
+              isSelected ? Theme.of(context).primaryColor : Colors.transparent,
           width: 2,
         ),
       ),
@@ -344,21 +350,20 @@ class _PaymentScreenState extends State<PaymentScreen> {
       children: [
         Text(
           localizations.language == 'Language'
-            ? 'Card Information'
-            : 'Informations de la Carte',
+              ? 'Card Information'
+              : 'Informations de la Carte',
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
           ),
         ),
         const SizedBox(height: 16),
-        
         TextFormField(
           controller: _cardNumberController,
           decoration: InputDecoration(
             labelText: localizations.language == 'Language'
-              ? 'Card Number'
-              : 'Numéro de Carte',
+                ? 'Card Number'
+                : 'Numéro de Carte',
             prefixIcon: const Icon(Icons.credit_card),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
             hintText: '1234 5678 9012 3456',
@@ -366,17 +371,16 @@ class _PaymentScreenState extends State<PaymentScreen> {
           keyboardType: TextInputType.number,
         ),
         const SizedBox(height: 16),
-        
         Row(
           children: [
             Expanded(
               child: TextFormField(
                 controller: _expiryController,
                 decoration: InputDecoration(
-                  labelText: localizations.language == 'Language'
-                    ? 'MM/YY'
-                    : 'MM/AA',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  labelText:
+                      localizations.language == 'Language' ? 'MM/YY' : 'MM/AA',
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8)),
                   hintText: '12/25',
                 ),
                 keyboardType: TextInputType.number,
@@ -388,7 +392,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 controller: _cvvController,
                 decoration: InputDecoration(
                   labelText: 'CVV',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8)),
                   hintText: '123',
                 ),
                 keyboardType: TextInputType.number,
@@ -398,13 +403,12 @@ class _PaymentScreenState extends State<PaymentScreen> {
           ],
         ),
         const SizedBox(height: 16),
-        
         TextFormField(
           controller: _nameController,
           decoration: InputDecoration(
             labelText: localizations.language == 'Language'
-              ? 'Cardholder Name'
-              : 'Nom du Titulaire',
+                ? 'Cardholder Name'
+                : 'Nom du Titulaire',
             prefixIcon: const Icon(Icons.person_outline),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
           ),
@@ -438,35 +442,18 @@ class _PaymentScreenState extends State<PaymentScreen> {
         description: 'Queue access fee for ${widget.establishment.name}',
       );
 
-      final queueStatus = queueService.getQueueStatus(widget.establishment.id);
-      if (queueStatus != null && queueStatus.availableNumbers.isNotEmpty) {
-        final purchasedNumber = queueStatus.availableNumbers.first;
-        
-        final ticket = await queueService.purchaseQueueNumber(
-          establishmentId: widget.establishment.id,
-          establishmentName: widget.establishment.name,
-          establishmentAddress: widget.establishment.address,
-          queueNumber: purchasedNumber,
-          paymentId: payment.id,
-        );
-
-        if (mounted) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ConfirmationScreen(
-                purchasedNumber: ticket.queueNumber,
-              ),
+      // After successful payment, redirect to queue number selection
+      // where client can see live queue status and choose their number
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => QueueNumberSelectionScreen(
+              establishment: widget.establishment,
+              payment: payment,
             ),
-          );
-        }
-      } else {
-        if (mounted) {
-          _showErrorDialog(
-            localizations.queueFullTitle,
-            localizations.queueFullBody,
-          );
-        }
+          ),
+        );
       }
     } catch (e) {
       if (mounted) {

@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuikTik External Device Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #2563eb, #3b82f6);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 90%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.8;
+            font-size: 1.1rem;
+        }
+        
+        .status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 10px;
+            background: #ef4444;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-dot.connected {
+            background: #10b981;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .info-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .info-card h3 {
+            margin-bottom: 15px;
+            color: #fbbf24;
+        }
+        
+        .queue-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0;
+        }
+        
+        .queue-number {
+            font-size: 3rem;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+            color: #fbbf24;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            backdrop-filter: blur(5px);
+        }
+        
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .btn-primary {
+            background: #10b981;
+        }
+        
+        .btn-primary:hover {
+            background: #059669;
+        }
+        
+        .btn-secondary {
+            background: #f59e0b;
+        }
+        
+        .btn-secondary:hover {
+            background: #d97706;
+        }
+        
+        .log {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .log h3 {
+            margin-bottom: 15px;
+            color: #fbbf24;
+        }
+        
+        .log-item {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            margin: 5px 0;
+            padding: 5px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
+        }
+        
+        .connection-info {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎫 QuikTik External Device</h1>
+            <p>Real-time Queue Management Interface</p>
+        </div>
+        
+        <div class="status">
+            <div class="status-dot" id="statusDot"></div>
+            <span id="statusText">Connecting to QuikTik...</span>
+        </div>
+        
+        <div class="info-grid">
+            <div class="info-card">
+                <h3>🏪 Establishment</h3>
+                <p id="establishmentName">Loading...</p>
+                <p id="establishmentAddress" style="opacity: 0.7; font-size: 0.9rem;"></p>
+            </div>
+            
+            <div class="info-card">
+                <h3>📊 Queue Status</h3>
+                <div class="queue-info">
+                    <span>Currently Serving:</span>
+                    <strong id="currentServing">--</strong>
+                </div>
+                <div class="queue-info">
+                    <span>People Waiting:</span>
+                    <strong id="totalWaiting">--</strong>
+                </div>
+                <div class="queue-info">
+                    <span>Available Numbers:</span>
+                    <strong id="availableCount">--</strong>
+                </div>
+            </div>
+        </div>
+        
+        <div class="queue-number" id="servingNumber">--</div>
+        
+        <div class="controls">
+            <button class="btn btn-primary" onclick="advanceQueue()">
+                ⏭️ Next Customer
+            </button>
+            <button class="btn btn-secondary" onclick="pauseQueue()">
+                ⏸️ Pause Queue
+            </button>
+            <button class="btn" onclick="refreshData()">
+                🔄 Refresh
+            </button>
+            <button class="btn" onclick="registerDevice()">
+                📡 Register Device
+            </button>
+        </div>
+        
+        <div class="log">
+            <h3>📋 Activity Log</h3>
+            <div id="logContainer"></div>
+        </div>
+        
+        <div class="connection-info">
+            <strong>Connection Info:</strong><br>
+            WebSocket: <span id="wsUrl">ws://localhost:8081</span><br>
+            HTTP API: <span id="apiUrl">http://localhost:8080/api</span><br>
+            Device ID: <span id="deviceId">--</span>
+        </div>
+    </div>
+
+    <script>
+        let ws = null;
+        let establishmentId = 'est_001'; // Default establishment
+        let currentServingNumber = 0;
+        let deviceId = 'external_device_' + Math.random().toString(36).substr(2, 9);
+        
+        // DOM elements
+        const statusDot = document.getElementById('statusDot');
+        const statusText = document.getElementById('statusText');
+        const establishmentName = document.getElementById('establishmentName');
+        const establishmentAddress = document.getElementById('establishmentAddress');
+        const currentServing = document.getElementById('currentServing');
+        const totalWaiting = document.getElementById('totalWaiting');
+        const availableCount = document.getElementById('availableCount');
+        const servingNumber = document.getElementById('servingNumber');
+        const logContainer = document.getElementById('logContainer');
+        const deviceIdSpan = document.getElementById('deviceId');
+        
+        deviceIdSpan.textContent = deviceId;
+        
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const logItem = document.createElement('div');
+            logItem.className = 'log-item';
+            logItem.textContent = `[${timestamp}] ${message}`;
+            logContainer.appendChild(logItem);
+            logContainer.scrollTop = logContainer.scrollHeight;
+            
+            // Keep only last 50 log entries
+            while (logContainer.children.length > 50) {
+                logContainer.removeChild(logContainer.firstChild);
+            }
+        }
+        
+        function updateStatus(connected) {
+            statusDot.className = connected ? 'status-dot connected' : 'status-dot';
+            statusText.textContent = connected ? 'Connected to QuikTik' : 'Disconnected';
+        }
+        
+        function connectWebSocket() {
+            try {
+                ws = new WebSocket('ws://localhost:8081');
+                
+                ws.onopen = function() {
+                    updateStatus(true);
+                    log('Connected to QuikTik WebSocket');
+                    
+                    // Register device
+                    registerDevice();
+                    
+                    // Subscribe to establishment updates
+                    ws.send(JSON.stringify({
+                        type: 'subscribe',
+                        establishment_id: establishmentId,
+                        device_id: deviceId
+                    }));
+                };
+                
+                ws.onmessage = function(event) {
+                    try {
+                        const data = JSON.parse(event.data);
+                        handleMessage(data);
+                    } catch (e) {
+                        log('Error parsing message: ' + e.message);
+                    }
+                };
+                
+                ws.onclose = function() {
+                    updateStatus(false);
+                    log('WebSocket connection closed. Reconnecting in 5 seconds...');
+                    setTimeout(connectWebSocket, 5000);
+                };
+                
+                ws.onerror = function(error) {
+                    log('WebSocket error: ' + error);
+                };
+                
+            } catch (e) {
+                log('Failed to connect: ' + e.message);
+                setTimeout(connectWebSocket, 5000);
+            }
+        }
+        
+        function handleMessage(data) {
+            switch (data.type) {
+                case 'connected':
+                    log('Successfully connected to QuikTik');
+                    break;
+                    
+                case 'queue_update':
+                    updateQueueDisplay(data);
+                    log(`Queue updated: Now serving #${data.current_serving}`);
+                    break;
+                    
+                case 'ticket_purchased':
+                    log(`New ticket purchased: #${data.queue_number} (${data.establishment_id})`);
+                    break;
+                    
+                case 'subscribed':
+                    log(`Subscribed to establishment: ${data.establishment_id}`);
+                    break;
+                    
+                case 'queue_advanced':
+                    log(`Queue advanced to #${data.new_serving_number}`);
+                    break;
+                    
+                case 'pong':
+                    log('Heartbeat received');
+                    break;
+                    
+                default:
+                    log('Received: ' + JSON.stringify(data));
+            }
+        }
+        
+        function updateQueueDisplay(data) {
+            currentServing.textContent = data.current_serving;
+            totalWaiting.textContent = data.total_waiting;
+            availableCount.textContent = data.available_numbers ? data.available_numbers.length : 0;
+            servingNumber.textContent = data.current_serving;
+            currentServingNumber = data.current_serving;
+        }
+        
+        function advanceQueue() {
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                log('Not connected to server');
+                return;
+            }
+            
+            const newNumber = currentServingNumber + 1;
+            ws.send(JSON.stringify({
+                type: 'advance_queue',
+                establishment_id: establishmentId,
+                new_serving_number: newNumber,
+                device_id: deviceId
+            }));
+            
+            log(`Advancing queue to #${newNumber}`);
+        }
+        
+        function pauseQueue() {
+            log('Queue paused (demo action)');
+        }
+        
+        function refreshData() {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    type: 'ping',
+                    device_id: deviceId
+                }));
+                log('Refreshing data...');
+            } else {
+                log('Not connected - attempting reconnection');
+                connectWebSocket();
+            }
+        }
+        
+        async function registerDevice() {
+            try {
+                const response = await fetch('http://localhost:8080/api/device/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        device_id: deviceId,
+                        device_type: 'display',
+                        device_name: 'External Display Interface'
+                    })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    log('Device registered successfully');
+                } else {
+                    log('Device registration failed: ' + (result.error || 'Unknown error'));
+                }
+            } catch (e) {
+                log('Failed to register device: ' + e.message);
+            }
+        }
+        
+        // Load establishment data
+        async function loadEstablishmentData() {
+            try {
+                const response = await fetch('http://localhost:8080/api/establishments');
+                const data = await response.json();
+                
+                if (data.establishments && data.establishments.length > 0) {
+                    const establishment = data.establishments[0]; // Use first establishment
+                    establishmentId = establishment.id;
+                    establishmentName.textContent = establishment.name;
+                    establishmentAddress.textContent = establishment.address;
+                    
+                    log(`Loaded establishment: ${establishment.name}`);
+                }
+            } catch (e) {
+                log('Failed to load establishment data: ' + e.message);
+            }
+        }
+        
+        // Initialize
+        window.onload = function() {
+            log('QuikTik External Device Interface started');
+            loadEstablishmentData();
+            connectWebSocket();
+            
+            // Send heartbeat every 30 seconds
+            setInterval(() => {
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({
+                        type: 'ping',
+                        device_id: deviceId
+                    }));
+                }
+            }, 30000);
+        };
+    </script>
+</body>
+</html>

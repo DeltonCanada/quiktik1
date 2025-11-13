@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuikTik External Device Connection Demo</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        .step {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            border-left: 5px solid #4CAF50;
+        }
+        .step h2 {
+            margin-top: 0;
+            color: #4CAF50;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .code {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            white-space: pre-wrap;
+        }
+        .button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+        }
+        .button:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+        .status {
+            padding: 10px 20px;
+            border-radius: 25px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .status.success {
+            background: rgba(76, 175, 80, 0.3);
+            border: 2px solid #4CAF50;
+        }
+        .status.error {
+            background: rgba(244, 67, 54, 0.3);
+            border: 2px solid #f44336;
+        }
+        .status.info {
+            background: rgba(33, 150, 243, 0.3);
+            border: 2px solid #2196F3;
+        }
+        .visual-flow {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .flow-item {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            flex: 1;
+            min-width: 200px;
+        }
+        .arrow {
+            font-size: 24px;
+            color: #4CAF50;
+        }
+        .demo-section {
+            border: 2px dashed rgba(255, 255, 255, 0.5);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        #connectionTest {
+            display: none;
+            margin-top: 20px;
+        }
+        .icon {
+            font-size: 24px;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔌 QuikTik External Device Connection Demo</h1>
+        <p><strong>Follow these exact steps to connect your external device to QuikTik</strong></p>
+
+        <div class="step">
+            <h2><span class="icon">📱</span> Step 1: Start QuikTik App</h2>
+            <p>Run your Flutter app. You should see the Welcome Screen with these buttons:</p>
+            <div class="visual-flow">
+                <div class="flow-item">🎫 Buy Ticket</div>
+                <div class="flow-item" style="background: #4CAF50;">🏪 Establishment Portal<br><small>← Click This!</small></div>
+                <div class="flow-item">ℹ️ About</div>
+            </div>
+        </div>
+
+        <div class="step">
+            <h2><span class="icon">🔐</span> Step 2: Login to Establishment Portal</h2>
+            <p>Enter the PIN when prompted:</p>
+            <div class="code">PIN: 1234</div>
+            <p>Click "Login" to access the Establishment Dashboard</p>
+        </div>
+
+        <div class="step">
+            <h2><span class="icon">📡</span> Step 3: Start External Device Services</h2>
+            <p>On the dashboard, look for the antenna icon and click it:</p>
+            <div class="visual-flow">
+                <div class="flow-item">📊 Queue Management</div>
+                <div class="flow-item">🎫 Active Tickets</div>
+                <div class="flow-item" style="background: #4CAF50;">📱 External Device Manager<br><small>← Click the antenna!</small></div>
+            </div>
+            <p>Then click the <strong>"Start Services"</strong> button and wait for:</p>
+            <div class="status success">Service Status: ● Running</div>
+        </div>
+
+        <div class="step">
+            <h2><span class="icon">🧪</span> Step 4: Test Your Connection</h2>
+            <p>Choose your preferred testing method:</p>
+            
+            <div class="demo-section">
+                <h3>🐍 Option A: Python Test Script (Recommended)</h3>
+                <div class="code">pip install requests websocket-client
+cd c:\QuikTik\quiktik1
+python external_device_test.py</div>
+                <button class="button" onclick="showPythonInstructions()">Show Python Instructions</button>
+            </div>
+
+            <div class="demo-section">
+                <h3>🌐 Option B: Web Browser Test</h3>
+                <p>Open this file in your web browser:</p>
+                <div class="code">file:///c:/QuikTik/quiktik1/web/external_device_interface.html</div>
+                <button class="button" onclick="testWebConnection()">Test Web Connection</button>
+            </div>
+
+            <div class="demo-section">
+                <h3>🔧 Option C: Direct API Test</h3>
+                <p>Open these URLs in your browser:</p>
+                <div class="code">http://localhost:8080/api/status
+http://localhost:8080/api/queue
+http://localhost:8080/api/establishments</div>
+                <button class="button" onclick="testAPIConnection()">Test API Connection</button>
+            </div>
+        </div>
+
+        <div id="connectionTest">
+            <div class="step">
+                <h2><span class="icon">✅</span> Connection Test Results</h2>
+                <div id="testResults"></div>
+            </div>
+        </div>
+
+        <div class="step">
+            <h2><span class="icon">🎯</span> What You Should See</h2>
+            <h3>✅ Successful Connection:</h3>
+            <div class="status success">🟢 HTTP API: Status 200 OK</div>
+            <div class="status success">🟢 WebSocket: Connected</div>
+            <div class="status success">🟢 Device Registered: python_device_xxxxx</div>
+            <div class="status success">🟢 Queue Updates: Real-time</div>
+
+            <h3>❌ Connection Problems:</h3>
+            <div class="status error">🔴 Connection refused → Services not started</div>
+            <div class="status error">🔴 Port not accessible → Check firewall</div>
+            <div class="status error">🔴 No response → QuikTik app not running</div>
+        </div>
+
+        <div class="step">
+            <h2><span class="icon">🔧</span> Quick Troubleshooting</h2>
+            <div class="visual-flow">
+                <div class="flow-item">
+                    <h4>Problem: Connection Refused</h4>
+                    <p>✅ Start services in Step 3</p>
+                    <p>✅ Check "Service Status: ● Running"</p>
+                </div>
+                <div class="flow-item">
+                    <h4>Problem: Python Errors</h4>
+                    <p>✅ Run: pip install requests websocket-client</p>
+                    <p>✅ Use web browser method instead</p>
+                </div>
+                <div class="flow-item">
+                    <h4>Problem: No Data</h4>
+                    <p>✅ Go through "Buy Ticket" once</p>
+                    <p>✅ Creates sample establishment</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="step">
+            <h2><span class="icon">🚀</span> Quick Checklist</h2>
+            <div id="checklist">
+                <label><input type="checkbox"> QuikTik app running</label><br>
+                <label><input type="checkbox"> Clicked "Establishment Portal"</label><br>
+                <label><input type="checkbox"> Entered PIN: 1234</label><br>
+                <label><input type="checkbox"> Clicked antenna icon (📱)</label><br>
+                <label><input type="checkbox"> Clicked "Start Services"</label><br>
+                <label><input type="checkbox"> Status shows "● Running"</label><br>
+                <label><input type="checkbox"> Ran test (Python/Web/API)</label><br>
+                <label><input type="checkbox"> Saw "✅ Connected" message</label><br>
+            </div>
+            <p><strong>🎉 If all boxes are checked, your external device is connected!</strong></p>
+        </div>
+    </div>
+
+    <script>
+        function showPythonInstructions() {
+            alert(`Python Test Instructions:
+
+1. Open PowerShell or Command Prompt
+2. Install packages: pip install requests websocket-client
+3. Navigate: cd c:\\QuikTik\\quiktik1
+4. Run: python external_device_test.py
+5. Follow the interactive menu!
+
+The script will:
+✅ Test HTTP API connection
+✅ Test WebSocket real-time updates  
+✅ Register your device
+✅ Show live queue status
+✅ Let you advance queue numbers`);
+        }
+
+        function testWebConnection() {
+            const htmlPath = 'file:///c:/QuikTik/quiktik1/web/external_device_interface.html';
+            if (confirm(`This will open the web interface. Make sure your QuikTik services are running first!\n\nClick OK to open: ${htmlPath}`)) {
+                window.open(htmlPath, '_blank');
+            }
+        }
+
+        async function testAPIConnection() {
+            const testResults = document.getElementById('testResults');
+            const connectionTest = document.getElementById('connectionTest');
+            
+            testResults.innerHTML = '<p>🔄 Testing API connection...</p>';
+            connectionTest.style.display = 'block';
+            
+            try {
+                const response = await fetch('http://localhost:8080/api/status');
+                if (response.ok) {
+                    const data = await response.json();
+                    testResults.innerHTML = `
+                        <div class="status success">✅ API Connection Successful!</div>
+                        <div class="code">Status: ${data.status}
+Connected WebSockets: ${data.connected_websockets || 0}
+Registered Devices: ${data.registered_devices || 0}</div>
+                        <p><strong>🎉 Your external device services are working!</strong></p>
+                    `;
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                testResults.innerHTML = `
+                    <div class="status error">❌ API Connection Failed</div>
+                    <div class="code">Error: ${error.message}</div>
+                    <p><strong>Make sure:</strong></p>
+                    <ul>
+                        <li>QuikTik app is running</li>
+                        <li>You've started the services (Step 3)</li>
+                        <li>Status shows "Service Status: ● Running"</li>
+                    </ul>
+                `;
+            }
+        }
+
+        // Auto-check completed items when clicked
+        document.addEventListener('change', function(e) {
+            if (e.target.type === 'checkbox') {
+                const checkedCount = document.querySelectorAll('#checklist input:checked').length;
+                const totalCount = document.querySelectorAll('#checklist input').length;
+                
+                if (checkedCount === totalCount) {
+                    alert('🎉 Congratulations! Your external device connection setup is complete!\n\nYou can now:\n✅ Connect tablets, displays, and printers\n✅ Get real-time queue updates\n✅ Control queue from external devices\n✅ Build custom integrations');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
