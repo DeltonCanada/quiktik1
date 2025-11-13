@@ -11,6 +11,7 @@ class QueueTicket {
   final QueueTicketStatus status;
   final String paymentId;
   final double amount;
+  final DateTime? turnStartTime; // When customer's turn started (for countdown)
 
   QueueTicket({
     required this.id,
@@ -23,11 +24,38 @@ class QueueTicket {
     required this.status,
     required this.paymentId,
     required this.amount,
+    this.turnStartTime,
   });
 
   bool get isActive => status == QueueTicketStatus.active;
   bool get isExpired => DateTime.now().isAfter(expirationTime);
   bool get isUsed => status == QueueTicketStatus.used;
+  bool get isYourTurn => status == QueueTicketStatus.yourTurn;
+  
+  // Countdown functionality for when it's customer's turn
+  Duration? get remainingTime {
+    if (!isYourTurn || turnStartTime == null) return null;
+    
+    const fiveMinutes = Duration(minutes: 5);
+    final elapsed = DateTime.now().difference(turnStartTime!);
+    final remaining = fiveMinutes - elapsed;
+    
+    return remaining.isNegative ? Duration.zero : remaining;
+  }
+  
+  bool get countdownExpired {
+    final remaining = remainingTime;
+    return remaining != null && remaining == Duration.zero;
+  }
+  
+  String get countdownText {
+    final remaining = remainingTime;
+    if (remaining == null) return '';
+    
+    final minutes = remaining.inMinutes;
+    final seconds = remaining.inSeconds % 60;
+    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+  }
 
   QueueTicket copyWith({
     String? id,
@@ -40,6 +68,7 @@ class QueueTicket {
     QueueTicketStatus? status,
     String? paymentId,
     double? amount,
+    DateTime? turnStartTime,
   }) {
     return QueueTicket(
       id: id ?? this.id,
@@ -52,12 +81,14 @@ class QueueTicket {
       status: status ?? this.status,
       paymentId: paymentId ?? this.paymentId,
       amount: amount ?? this.amount,
+      turnStartTime: turnStartTime ?? this.turnStartTime,
     );
   }
 }
 
 enum QueueTicketStatus {
   active,
+  yourTurn, // Customer's turn with 5-minute countdown
   used,
   expired,
   cancelled,
@@ -68,6 +99,8 @@ extension QueueTicketStatusExtension on QueueTicketStatus {
     switch (this) {
       case QueueTicketStatus.active:
         return languageCode == 'fr' ? 'Actif' : 'Active';
+      case QueueTicketStatus.yourTurn:
+        return languageCode == 'fr' ? 'Votre Tour!' : 'Your Turn!';
       case QueueTicketStatus.used:
         return languageCode == 'fr' ? 'Utilisé' : 'Used';
       case QueueTicketStatus.expired:
@@ -81,6 +114,8 @@ extension QueueTicketStatusExtension on QueueTicketStatus {
     switch (this) {
       case QueueTicketStatus.active:
         return Colors.green;
+      case QueueTicketStatus.yourTurn:
+        return Colors.orange; // Urgent orange for "Your Turn!"
       case QueueTicketStatus.used:
         return Colors.blue;
       case QueueTicketStatus.expired:

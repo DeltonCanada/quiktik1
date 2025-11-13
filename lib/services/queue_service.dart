@@ -88,6 +88,7 @@ class QueueService {
             status: QueueTicketStatus.active,
             paymentId: 'demo_payment_${_generateRandomNumber(100000, 999999)}',
             amount: queueAccessFee,
+            turnStartTime: null, // Will be set when it's customer's turn
           );
           
           _userTickets.add(demoTicket);
@@ -164,6 +165,41 @@ class QueueService {
     _queueStatuses.clear();
     _queueStatuses.addAll(updatedStatuses);
     _queueStatusController.add(Map<String, QueueStatus>.from(_queueStatuses));
+    
+    // Check if any customer tickets are now being served (their turn)
+    _checkCustomerTurn();
+  }
+
+  void _checkCustomerTurn() {
+    for (int i = 0; i < _userTickets.length; i++) {
+      final ticket = _userTickets[i];
+      
+      if (ticket.status == QueueTicketStatus.active) {
+        final queueStatus = _queueStatuses[ticket.establishmentId];
+        
+        if (queueStatus != null && 
+            ticket.queueNumber == queueStatus.currentlyServing) {
+          // It's this customer's turn! Start the 5-minute countdown
+          _userTickets[i] = ticket.copyWith(
+            status: QueueTicketStatus.yourTurn,
+            turnStartTime: DateTime.now(),
+          );
+          
+          developer.log('🎯 Customer turn started! Ticket #${ticket.queueNumber} at ${ticket.establishmentName}', 
+                       name: 'QueueService');
+        }
+      }
+      
+      // Check if countdown has expired
+      if (ticket.status == QueueTicketStatus.yourTurn && ticket.countdownExpired) {
+        _userTickets[i] = ticket.copyWith(
+          status: QueueTicketStatus.expired,
+        );
+        
+        developer.log('⏰ Countdown expired for ticket #${ticket.queueNumber}', 
+                     name: 'QueueService');
+      }
+    }
   }
 
   QueueStatus? getQueueStatus(String establishmentId) {
@@ -220,6 +256,7 @@ class QueueService {
       status: QueueTicketStatus.active,
       paymentId: paymentId,
       amount: queueAccessFee,
+      turnStartTime: null, // Will be set when it's customer's turn
     );
 
     _userTickets.add(ticket);
@@ -253,7 +290,9 @@ class QueueService {
 
   List<QueueTicket> getActiveTickets() {
     return _userTickets
-        .where((ticket) => ticket.status == QueueTicketStatus.active)
+        .where((ticket) => 
+            ticket.status == QueueTicketStatus.active || 
+            ticket.status == QueueTicketStatus.yourTurn)
         .toList();
   }
 
@@ -269,6 +308,23 @@ class QueueService {
       _userTickets[ticketIndex] = _userTickets[ticketIndex].copyWith(
         status: QueueTicketStatus.cancelled,
       );
+    }
+  }
+
+  // Method to manually trigger "Your Turn" for testing - simulates when customer's number is called
+  void triggerCustomerTurn(String ticketId) {
+    final ticketIndex = _userTickets.indexWhere((t) => t.id == ticketId);
+    if (ticketIndex != -1) {
+      final ticket = _userTickets[ticketIndex];
+      if (ticket.status == QueueTicketStatus.active) {
+        _userTickets[ticketIndex] = ticket.copyWith(
+          status: QueueTicketStatus.yourTurn,
+          turnStartTime: DateTime.now(),
+        );
+        
+        developer.log('🎯 Manually triggered customer turn for ticket #${ticket.queueNumber}', 
+                     name: 'QueueService');
+      }
     }
   }
 

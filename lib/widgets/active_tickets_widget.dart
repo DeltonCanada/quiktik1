@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../utils/app_localizations.dart';
 import '../models/queue_models.dart';
 import '../services/queue_service.dart';
+import 'countdown_timer_widget.dart';
 
 class ActiveTicketsWidget extends StatefulWidget {
   final ScrollController scrollController;
@@ -391,6 +392,20 @@ class _ActiveTicketsWidgetState extends State<ActiveTicketsWidget> {
                       ),
                     ],
                   ),
+                ),
+                const SizedBox(height: 12),
+              ],
+
+              // Countdown timer for "Your Turn" status
+              if (ticket.isYourTurn) ...[
+                CountdownTimerWidget(
+                  ticket: ticket,
+                  onExpired: () {
+                    // Handle countdown expiration
+                    setState(() {
+                      // The queue service will handle updating the ticket status
+                    });
+                  },
                 ),
                 const SizedBox(height: 12),
               ],
