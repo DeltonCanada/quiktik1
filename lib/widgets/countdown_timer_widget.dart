@@ -115,7 +115,7 @@ class _CountdownTimerWidgetState extends State<CountdownTimerWidget>
                       size: 28,
                     ),
                     const SizedBox(width: 8),
-                    Text(
+                    const Text(
                       'YOUR TURN!',
                       style: TextStyle(
                         color: Colors.white,
@@ -238,7 +238,7 @@ class _CountdownTimerWidgetState extends State<CountdownTimerWidget>
               Text('Great! You\'re here'),
             ],
           ),
-          content: Text(
+          content: const Text(
             'Please proceed to the counter and show this ticket to the staff.',
             style: TextStyle(fontSize: 16),
           ),
