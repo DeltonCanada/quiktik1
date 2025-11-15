@@ -10,7 +10,7 @@ import 'config_manager.dart';
 /// Centralized app initialization service that sets up all core services
 class AppInitializer {
   static bool _isInitialized = false;
-  
+
   /// Initialize all app services in the correct order
   static Future<void> initialize() async {
     if (_isInitialized) {
@@ -18,14 +18,16 @@ class AppInitializer {
       return;
     }
 
-    final performanceTimer = PerformanceMonitor().startTimer('app_initialization');
+    final performanceTimer =
+        PerformanceMonitor().startTimer('app_initialization');
 
     try {
       developer.log('Starting app initialization...', name: 'AppInitializer');
-      
+
       // 1. Initialize error handling first
       GlobalErrorHandler.initialize();
-      developer.log('✓ Global error handler initialized', name: 'AppInitializer');
+      developer.log('✓ Global error handler initialized',
+          name: 'AppInitializer');
 
       // 2. Initialize app state management
       AppStateManager().setLoading(message: 'Initializing app...');
@@ -33,7 +35,8 @@ class AppInitializer {
 
       // 3. Initialize configuration management
       ConfigManager().initialize();
-      developer.log('✓ Configuration manager initialized', name: 'AppInitializer');
+      developer.log('✓ Configuration manager initialized',
+          name: 'AppInitializer');
 
       // 4. Initialize cache service
       await CacheService().initialize();
@@ -48,10 +51,10 @@ class AppInitializer {
 
       // 7. Set app as ready
       AppStateManager().setReady();
-      developer.log('✓ App initialization completed successfully', name: 'AppInitializer');
+      developer.log('✓ App initialization completed successfully',
+          name: 'AppInitializer');
 
       _isInitialized = true;
-
     } catch (error, stackTrace) {
       // Handle initialization errors
       developer.log(
@@ -70,7 +73,8 @@ class AppInitializer {
         context: 'AppInitializer',
       ));
 
-      AppStateManager().setError('Initialization failed', details: error.toString());
+      AppStateManager()
+          .setError('Initialization failed', details: error.toString());
       rethrow;
     } finally {
       PerformanceMonitor().stopTimer(performanceTimer);
@@ -80,7 +84,7 @@ class AppInitializer {
   /// Wait for initial network connectivity check
   static Future<void> _waitForNetworkCheck() async {
     final networkTimer = PerformanceMonitor().startTimer('network_check');
-    
+
     try {
       // Wait up to 3 seconds for network check
       await NetworkMonitor().hasInternetConnection().timeout(
@@ -118,14 +122,14 @@ class AppInitializer {
   /// Perform health check and return status
   static Future<bool> performHealthCheck() async {
     final healthTimer = PerformanceMonitor().startTimer('health_check');
-    
+
     try {
       final status = getHealthStatus();
-      
+
       // Check critical components
       final isHealthy = status['initialized'] == true &&
-                       status['app_state'] != 'error' &&
-                       status['config_loaded'] == true;
+          status['app_state'] != 'error' &&
+          status['config_loaded'] == true;
 
       developer.log(
         'Health check completed: ${isHealthy ? 'HEALTHY' : 'UNHEALTHY'}',
@@ -149,4 +153,3 @@ class AppInitializer {
     }
   }
 }
-

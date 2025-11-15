@@ -265,7 +265,7 @@ class CitySelectionScreen extends StatelessWidget {
 
   void _showEstablishmentSelection(BuildContext context, City city) {
     final establishments = city.establishments;
-    
+
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
@@ -280,7 +280,7 @@ class CitySelectionScreen extends StatelessWidget {
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
               const SizedBox(height: 16),
-              for (final establishment in establishments) 
+              for (final establishment in establishments)
                 ListTile(
                   leading: const Icon(Icons.location_on),
                   title: Text(establishment.name),

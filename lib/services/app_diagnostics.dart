@@ -9,11 +9,10 @@ import 'config_manager.dart';
 
 /// Comprehensive app diagnostic and status reporting tool
 class AppDiagnostics {
-  
   /// Generate comprehensive health and performance report
   static Map<String, dynamic> generateComprehensiveReport() {
     final reportTimer = PerformanceMonitor().startTimer('diagnostic_report');
-    
+
     try {
       final report = {
         'timestamp': DateTime.now().toIso8601String(),
@@ -32,7 +31,6 @@ class AppDiagnostics {
       );
 
       return report;
-
     } catch (error, stackTrace) {
       developer.log(
         'Failed to generate diagnostic report: $error',
@@ -55,8 +53,11 @@ class AppDiagnostics {
   static Map<String, dynamic> _getAppInfo() {
     return {
       'name': ConfigManager().get<String>('app_name', defaultValue: 'QuikTik'),
-      'version': ConfigManager().get<String>('app_version', defaultValue: '1.0.0'),
-      'build_mode': ConfigManager().get<bool>('debug_mode', defaultValue: false) ? 'debug' : 'release',
+      'version':
+          ConfigManager().get<String>('app_version', defaultValue: '1.0.0'),
+      'build_mode': ConfigManager().get<bool>('debug_mode', defaultValue: false)
+          ? 'debug'
+          : 'release',
       'platform': _getPlatformInfo(),
     };
   }
@@ -70,7 +71,8 @@ class AppDiagnostics {
         'error_handler': 'active',
         'performance_monitor': 'active',
         'cache_service': CacheService().getStats()['initialized'] ?? false,
-        'network_monitor': NetworkMonitor().isConnected ? 'connected' : 'offline',
+        'network_monitor':
+            NetworkMonitor().isConnected ? 'connected' : 'offline',
         'app_state_manager': AppStateManager().currentState.name,
         'config_manager': ConfigManager().isInitialized,
       },
@@ -81,7 +83,7 @@ class AppDiagnostics {
   static Map<String, dynamic> _getPerformanceMetrics() {
     final performanceReport = PerformanceMonitor().getPerformanceReport();
     final cacheStats = CacheService().getStats();
-    
+
     return {
       'operation_timings': performanceReport,
       'cache_performance': {
@@ -96,9 +98,11 @@ class AppDiagnostics {
   /// Analyze error patterns and frequency
   static Map<String, dynamic> _getErrorAnalysis() {
     final errors = GlobalErrorHandler().errors;
-    final recentErrors = errors.where(
-      (error) => DateTime.now().difference(error.timestamp).inHours < 24,
-    ).toList();
+    final recentErrors = errors
+        .where(
+          (error) => DateTime.now().difference(error.timestamp).inHours < 24,
+        )
+        .toList();
 
     final errorCounts = <String, int>{};
     final severityCounts = <String, int>{};
@@ -106,7 +110,7 @@ class AppDiagnostics {
     for (final error in recentErrors) {
       final errorType = error.type.name;
       final severity = error.severity.name;
-      
+
       errorCounts[errorType] = (errorCounts[errorType] ?? 0) + 1;
       severityCounts[severity] = (severityCounts[severity] ?? 0) + 1;
     }
@@ -116,11 +120,13 @@ class AppDiagnostics {
       'recent_errors_24h': recentErrors.length,
       'error_types': errorCounts,
       'error_severity': severityCounts,
-      'last_error': errors.isNotEmpty ? {
-        'message': errors.last.message,
-        'timestamp': errors.last.timestamp.toIso8601String(),
-        'severity': errors.last.severity.name,
-      } : null,
+      'last_error': errors.isNotEmpty
+          ? {
+              'message': errors.last.message,
+              'timestamp': errors.last.timestamp.toIso8601String(),
+              'severity': errors.last.severity.name,
+            }
+          : null,
     };
   }
 
@@ -138,7 +144,7 @@ class AppDiagnostics {
   /// Get system resource usage estimates
   static Map<String, dynamic> _getSystemResources() {
     final cacheStats = CacheService().getStats();
-    
+
     return {
       'memory_estimate': {
         'cache_usage_kb': cacheStats['memory_usage_estimate'],
@@ -146,7 +152,8 @@ class AppDiagnostics {
       },
       'storage': {
         'cache_items': cacheStats['total_items'],
-        'max_cache_size': ConfigManager().get<int>('max_cache_size', defaultValue: 100),
+        'max_cache_size':
+            ConfigManager().get<int>('max_cache_size', defaultValue: 100),
       },
     };
   }
@@ -163,7 +170,8 @@ class AppDiagnostics {
         'type': 'performance',
         'priority': 'medium',
         'title': 'Low Cache Hit Rate',
-        'description': 'Cache hit rate is below 50%. Consider adjusting cache TTL or size.',
+        'description':
+            'Cache hit rate is below 50%. Consider adjusting cache TTL or size.',
         'action': 'Review caching strategy',
       });
     }
@@ -196,13 +204,14 @@ class AppDiagnostics {
       final operation = entry.key;
       final metrics = entry.value as Map<String, dynamic>;
       final avgTime = metrics['average_ms'] as num;
-      
+
       if (avgTime > 1000) {
         recommendations.add({
           'type': 'performance',
           'priority': 'medium',
           'title': 'Slow Operation: $operation',
-          'description': 'Operation takes ${avgTime.toStringAsFixed(1)}ms on average.',
+          'description':
+              'Operation takes ${avgTime.toStringAsFixed(1)}ms on average.',
           'action': 'Optimize $operation performance',
         });
       }
@@ -268,41 +277,42 @@ class AppDiagnostics {
   /// Export report as formatted string for logging
   static String formatReportForLogging(Map<String, dynamic> report) {
     final buffer = StringBuffer();
-    
+
     buffer.writeln('🏥 QUIKTIK APP HEALTH REPORT');
     buffer.writeln('=' * 50);
-    
+
     // App Info
     final appInfo = report['app_info'] as Map<String, dynamic>;
     buffer.writeln('📱 App: ${appInfo['name']} v${appInfo['version']}');
     buffer.writeln('🔧 Mode: ${appInfo['build_mode']}');
-    
+
     // Initialization Status
     final initStatus = report['initialization_status'] as Map<String, dynamic>;
     buffer.writeln('🚀 Initialized: ${initStatus['app_initialized']}');
-    
+
     // Performance Summary
     final performance = report['performance_metrics'] as Map<String, dynamic>;
     final cachePerf = performance['cache_performance'] as Map<String, dynamic>;
-    buffer.writeln('⚡ Cache Hit Rate: ${(cachePerf['hit_rate'] * 100).toStringAsFixed(1)}%');
-    
+    buffer.writeln(
+        '⚡ Cache Hit Rate: ${(cachePerf['hit_rate'] * 100).toStringAsFixed(1)}%');
+
     // Error Summary
     final errors = report['error_analysis'] as Map<String, dynamic>;
     buffer.writeln('🚨 Total Errors: ${errors['total_errors']}');
     buffer.writeln('⏰ Recent Errors (24h): ${errors['recent_errors_24h']}');
-    
+
     // Recommendations
     final recommendations = report['recommendations'] as List;
     buffer.writeln('💡 Recommendations: ${recommendations.length}');
-    
+
     for (int i = 0; i < recommendations.length && i < 3; i++) {
       final rec = recommendations[i] as Map<String, dynamic>;
       buffer.writeln('   ${i + 1}. ${rec['title']} (${rec['priority']})');
     }
-    
+
     buffer.writeln('=' * 50);
     buffer.writeln('Generated: ${report['timestamp']}');
-    
+
     return buffer.toString();
   }
 }

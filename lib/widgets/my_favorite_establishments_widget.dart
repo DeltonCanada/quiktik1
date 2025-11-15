@@ -1,24 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/di/app_providers.dart';
 import '../models/location_models.dart';
 import '../services/favorites_service.dart';
 import '../utils/app_localizations.dart';
 
-class MyFavoriteEstablishmentsWidget extends StatefulWidget {
+class MyFavoriteEstablishmentsWidget extends ConsumerStatefulWidget {
   const MyFavoriteEstablishmentsWidget({super.key});
 
   @override
-  State<MyFavoriteEstablishmentsWidget> createState() =>
+  ConsumerState<MyFavoriteEstablishmentsWidget> createState() =>
       _MyFavoriteEstablishmentsWidgetState();
 }
 
 class _MyFavoriteEstablishmentsWidgetState
-    extends State<MyFavoriteEstablishmentsWidget> {
-  final FavoritesService _favoritesService = FavoritesService();
+    extends ConsumerState<MyFavoriteEstablishmentsWidget> {
+  late FavoritesService _favoritesService;
 
   @override
   void initState() {
     super.initState();
+    _favoritesService = ref.read(favoritesServiceProvider);
     _favoritesService.addListener(_handleFavoritesChanged);
   }
 
@@ -310,20 +313,22 @@ class _MyFavoriteEstablishmentsWidgetState
   }
 }
 
-class FavoritesExplorerScreen extends StatefulWidget {
+class FavoritesExplorerScreen extends ConsumerStatefulWidget {
   const FavoritesExplorerScreen({super.key});
 
   @override
-  State<FavoritesExplorerScreen> createState() =>
+  ConsumerState<FavoritesExplorerScreen> createState() =>
       _FavoritesExplorerScreenState();
 }
 
-class _FavoritesExplorerScreenState extends State<FavoritesExplorerScreen> {
-  final FavoritesService _favoritesService = FavoritesService();
+class _FavoritesExplorerScreenState
+    extends ConsumerState<FavoritesExplorerScreen> {
+  late FavoritesService _favoritesService;
 
   @override
   void initState() {
     super.initState();
+    _favoritesService = ref.read(favoritesServiceProvider);
     _favoritesService.addListener(_onFavoritesChanged);
   }
 

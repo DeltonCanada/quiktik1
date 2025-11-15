@@ -24,15 +24,15 @@ class PerformanceMonitor {
     if (stopwatch != null) {
       stopwatch.stop();
       final duration = stopwatch.elapsedMilliseconds;
-      
+
       _performanceMetrics.putIfAbsent(operationName, () => []);
       _performanceMetrics[operationName]!.add(duration);
-      
+
       developer.log(
         'Performance: $operationName completed in ${duration}ms',
         name: 'PerformanceMonitor',
       );
-      
+
       // Alert if operation takes too long
       if (duration > 1000) {
         developer.log(
@@ -47,7 +47,7 @@ class PerformanceMonitor {
   double getAveragePerformance(String operationName) {
     final metrics = _performanceMetrics[operationName];
     if (metrics == null || metrics.isEmpty) return 0;
-    
+
     final sum = metrics.reduce((a, b) => a + b);
     return sum / metrics.length;
   }
@@ -55,11 +55,11 @@ class PerformanceMonitor {
   /// Get performance report
   Map<String, dynamic> getPerformanceReport() {
     final report = <String, dynamic>{};
-    
+
     for (final entry in _performanceMetrics.entries) {
       final operationName = entry.key;
       final metrics = entry.value;
-      
+
       if (metrics.isNotEmpty) {
         report[operationName] = {
           'average_ms': getAveragePerformance(operationName),
@@ -69,7 +69,7 @@ class PerformanceMonitor {
         };
       }
     }
-    
+
     return report;
   }
 
@@ -81,7 +81,7 @@ class PerformanceMonitor {
       level: severity.toLowerCase() == 'critical' ? 1000 : 800,
       error: errorMessage,
     );
-    
+
     // Record error as a performance event
     final errorTimer = startTimer('error_handling');
     // Simulate immediate completion for error logging

@@ -1,12 +1,13 @@
 // QuikTik Home Screen - Main entry point for the app
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../utils/app_localizations.dart';
 import '../widgets/language_selector.dart';
 import '../widgets/buy_ticket_widget.dart';
 import '../widgets/my_favorite_establishments_widget.dart';
 import '../widgets/favorites_counter_widget.dart';
-import '../services/auth_service.dart';
+import '../widgets/home_active_tickets_widget.dart';
+import '../core/di/app_providers.dart';
 import 'auth_selection_screen.dart';
 import 'about_screen.dart';
 import 'testimonials_screen.dart';
@@ -17,13 +18,13 @@ import 'active_tickets_screen.dart';
 import 'favorite_widgets_demo.dart';
 import 'favorites_flow_demo.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends ConsumerWidget {
   final Function(Locale) onLocaleChange;
 
   const HomeScreen({super.key, required this.onLocaleChange});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final localizations = AppLocalizations.of(context)!;
 
     return Scaffold(
@@ -43,7 +44,7 @@ class HomeScreen extends StatelessWidget {
                 ? 'Log out'
                 : 'Se déconnecter',
             icon: const Icon(Icons.logout),
-            onPressed: () => _handleLogout(context),
+            onPressed: () => _handleLogout(context, ref),
           ),
         ],
       ),
@@ -92,6 +93,11 @@ class HomeScreen extends StatelessWidget {
 
             // Buy Ticket Widget - Prominent placement
             const BuyTicketWidget(),
+
+            const SizedBox(height: 24),
+
+            // Active tickets summary
+            const HomeActiveTicketsWidget(),
 
             const SizedBox(height: 24),
 
@@ -281,8 +287,8 @@ class HomeScreen extends StatelessWidget {
     Navigator.push(context, MaterialPageRoute(builder: (context) => screen));
   }
 
-  void _handleLogout(BuildContext context) {
-    context.read<AuthService>().logout();
+  void _handleLogout(BuildContext context, WidgetRef ref) {
+    ref.read(authServiceProvider).logout();
 
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(

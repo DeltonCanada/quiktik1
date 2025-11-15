@@ -26,10 +26,10 @@ class QuikTikValidator {
   // Password validation
   static bool isValidPassword(String? password) {
     if (password == null || password.isEmpty) return false;
-    return password.length >= 8 && 
-           password.contains(RegExp(r'[A-Z]')) &&
-           password.contains(RegExp(r'[a-z]')) &&
-           password.contains(RegExp(r'[0-9]'));
+    return password.length >= 8 &&
+        password.contains(RegExp(r'[A-Z]')) &&
+        password.contains(RegExp(r'[a-z]')) &&
+        password.contains(RegExp(r'[0-9]'));
   }
 
   // Safe string conversion
@@ -87,7 +87,8 @@ class QuikTikValidator {
   }
 
   // Safe map validation
-  static Map<String, dynamic> safeMap(dynamic value, {Map<String, dynamic>? defaultValue}) {
+  static Map<String, dynamic> safeMap(dynamic value,
+      {Map<String, dynamic>? defaultValue}) {
     defaultValue ??= <String, dynamic>{};
     if (value == null) return defaultValue;
     if (value is Map<String, dynamic>) return value;
@@ -113,25 +114,25 @@ class QuikTikValidator {
   }
 
   // Validate required fields
-  static ValidationResult validateRequired(Map<String, dynamic> data, List<String> requiredFields) {
+  static ValidationResult validateRequired(
+      Map<String, dynamic> data, List<String> requiredFields) {
     final missingFields = <String>[];
-    
+
     for (final field in requiredFields) {
       final value = data[field];
-      if (value == null || 
+      if (value == null ||
           (value is String && value.trim().isEmpty) ||
           (value is List && value.isEmpty) ||
           (value is Map && value.isEmpty)) {
         missingFields.add(field);
       }
     }
-    
+
     if (missingFields.isNotEmpty) {
       return ValidationResult.failure(
-        'Missing required fields: ${missingFields.join(', ')}'
-      );
+          'Missing required fields: ${missingFields.join(', ')}');
     }
-    
+
     return ValidationResult.success();
   }
 
@@ -143,19 +144,23 @@ class QuikTikValidator {
 
     final name = safeString(data['name']);
     if (name.length < 2 || name.length > 100) {
-      return ValidationResult.failure('Establishment name must be between 2 and 100 characters');
+      return ValidationResult.failure(
+          'Establishment name must be between 2 and 100 characters');
     }
 
     final address = safeString(data['address']);
     if (address.length < 5 || address.length > 200) {
-      return ValidationResult.failure('Address must be between 5 and 200 characters');
+      return ValidationResult.failure(
+          'Address must be between 5 and 200 characters');
     }
 
     return ValidationResult.success();
   }
 
   // Validate user input for forms
-  static ValidationResult validateUserInput(String fieldName, String? value, {
+  static ValidationResult validateUserInput(
+    String fieldName,
+    String? value, {
     bool required = false,
     int? minLength,
     int? maxLength,
@@ -175,12 +180,14 @@ class QuikTikValidator {
 
     // Check minimum length
     if (minLength != null && trimmedValue.length < minLength) {
-      return ValidationResult.failure('$fieldName must be at least $minLength characters');
+      return ValidationResult.failure(
+          '$fieldName must be at least $minLength characters');
     }
 
     // Check maximum length
     if (maxLength != null && trimmedValue.length > maxLength) {
-      return ValidationResult.failure('$fieldName must not exceed $maxLength characters');
+      return ValidationResult.failure(
+          '$fieldName must not exceed $maxLength characters');
     }
 
     // Check pattern
@@ -197,20 +204,23 @@ class QuikTikValidator {
   // Sanitize user input to prevent injection attacks (though less relevant in Flutter)
   static String sanitizeInput(String? input) {
     if (input == null) return '';
-    
+
     String sanitized = input.trim();
-    
+
     // Remove script tags and their content
-    sanitized = sanitized.replaceAll(RegExp(r'<script[^>]*>.*?</script>', caseSensitive: false, dotAll: true), '');
-    
+    sanitized = sanitized.replaceAll(
+        RegExp(r'<script[^>]*>.*?</script>',
+            caseSensitive: false, dotAll: true),
+        '');
+
     // Remove all other HTML tags
     sanitized = sanitized.replaceAll(RegExp(r'<[^>]*>'), '');
-    
+
     // Limit length
     if (sanitized.length > 1000) {
       sanitized = sanitized.substring(0, 1000);
     }
-    
+
     return sanitized;
   }
 
@@ -244,28 +254,31 @@ class QuikTikValidator {
   // Validate date
   static bool isValidDate(String? date) {
     if (date == null || date.isEmpty) return false;
-    
+
     // Use regex to validate basic format first
-    final dateRegex = RegExp(r'^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d{3})?)?Z?$');
+    final dateRegex =
+        RegExp(r'^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d{3})?)?Z?$');
     if (!dateRegex.hasMatch(date)) return false;
-    
+
     try {
       final parts = date.split('T')[0].split('-');
       if (parts.length != 3) return false;
-      
+
       final year = int.parse(parts[0]);
       final month = int.parse(parts[1]);
       final day = int.parse(parts[2]);
-      
+
       // Validate ranges
       if (year < 1900 || year > 3000) return false;
       if (month < 1 || month > 12) return false;
       if (day < 1 || day > 31) return false;
-      
+
       // Additional validation for specific months
       if (month == 2 && day > 29) return false;
-      if ((month == 4 || month == 6 || month == 9 || month == 11) && day > 30) return false;
-      
+      if ((month == 4 || month == 6 || month == 9 || month == 11) && day > 30) {
+        return false;
+      }
+
       // Try to parse to ensure it's a valid date
       DateTime.parse('${date.split('T')[0]}T00:00:00Z');
       return true;
@@ -293,7 +306,8 @@ class ValidationResult {
   ValidationResult._(this.isValid, this.errorMessage);
 
   factory ValidationResult.success() => ValidationResult._(true, null);
-  factory ValidationResult.failure(String message) => ValidationResult._(false, message);
+  factory ValidationResult.failure(String message) =>
+      ValidationResult._(false, message);
 
   @override
   String toString() => isValid ? 'Valid' : 'Invalid: $errorMessage';
@@ -304,13 +318,13 @@ extension SafeStringExtension on String? {
   String orEmpty() => this ?? '';
   bool get isNullOrEmpty => this == null || this!.isEmpty;
   bool get isNotNullOrEmpty => !isNullOrEmpty;
-  
+
   String? get nullIfEmpty => (this?.isEmpty ?? true) ? null : this;
-  
+
   int toIntOrDefault([int defaultValue = 0]) {
     return QuikTikValidator.safeInt(this, defaultValue: defaultValue);
   }
-  
+
   double toDoubleOrDefault([double defaultValue = 0.0]) {
     return QuikTikValidator.safeDouble(this, defaultValue: defaultValue);
   }
@@ -320,7 +334,7 @@ extension SafeListExtension<T> on List<T>? {
   List<T> orEmpty() => this ?? <T>[];
   bool get isNullOrEmpty => this == null || this!.isEmpty;
   bool get isNotNullOrEmpty => !isNullOrEmpty;
-  
+
   T? safeElementAt(int index) {
     if (this == null || index < 0 || index >= this!.length) return null;
     return this![index];
@@ -331,7 +345,7 @@ extension SafeMapExtension on Map<String, dynamic>? {
   Map<String, dynamic> orEmpty() => this ?? <String, dynamic>{};
   bool get isNullOrEmpty => this == null || this!.isEmpty;
   bool get isNotNullOrEmpty => !isNullOrEmpty;
-  
+
   T? safeGet<T>(String key, {T? defaultValue}) {
     if (this == null || !this!.containsKey(key)) return defaultValue;
     final value = this![key];

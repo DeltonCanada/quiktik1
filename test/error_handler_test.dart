@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quiktik1/utils/error_handler.dart';
 
@@ -7,7 +7,7 @@ void main() {
     testWidgets('ErrorDialog renders correctly', (WidgetTester tester) async {
       const testTitle = 'Test Error';
       const testMessage = 'Test error message';
-      
+
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(

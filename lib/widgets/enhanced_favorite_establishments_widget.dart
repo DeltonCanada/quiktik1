@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../core/di/app_providers.dart';
 import '../models/location_models.dart';
 import '../services/favorites_service.dart';
 import '../utils/app_localizations.dart';
@@ -7,7 +10,7 @@ import '../utils/app_localizations.dart';
 ///
 /// This widget provides a comprehensive view of user's favorite establishments
 /// with improved animations, better empty state, and enhanced navigation.
-class EnhancedFavoriteEstablishmentsWidget extends StatefulWidget {
+class EnhancedFavoriteEstablishmentsWidget extends ConsumerStatefulWidget {
   /// Optional height constraint for the widget
   final double? height;
 
@@ -25,20 +28,21 @@ class EnhancedFavoriteEstablishmentsWidget extends StatefulWidget {
   });
 
   @override
-  State<EnhancedFavoriteEstablishmentsWidget> createState() =>
+  ConsumerState<EnhancedFavoriteEstablishmentsWidget> createState() =>
       _EnhancedFavoriteEstablishmentsWidgetState();
 }
 
 class _EnhancedFavoriteEstablishmentsWidgetState
-    extends State<EnhancedFavoriteEstablishmentsWidget>
+    extends ConsumerState<EnhancedFavoriteEstablishmentsWidget>
     with TickerProviderStateMixin {
-  final FavoritesService _favoritesService = FavoritesService();
+  late FavoritesService _favoritesService;
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
 
   @override
   void initState() {
     super.initState();
+    _favoritesService = ref.read(favoritesServiceProvider);
     _favoritesService.addListener(_handleFavoritesChanged);
 
     // Initialize animations

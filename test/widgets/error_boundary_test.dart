@@ -4,7 +4,8 @@ import 'package:quiktik1/services/error_handler.dart';
 
 void main() {
   group('ErrorBoundary Widget Tests', () {
-    testWidgets('should display child widget when no error', (WidgetTester tester) async {
+    testWidgets('should display child widget when no error',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: ErrorBoundary(
@@ -17,7 +18,8 @@ void main() {
       expect(find.text('Oops! Something went wrong'), findsNothing);
     });
 
-    testWidgets('should display default error widget when error occurs', (WidgetTester tester) async {
+    testWidgets('should display default error widget when error occurs',
+        (WidgetTester tester) async {
       final error = AppError(
         message: 'Test error message',
         stackTrace: 'Stack trace',
@@ -27,7 +29,7 @@ void main() {
         context: 'Widget test',
       );
 
-      // Test the DefaultErrorWidget directly since error boundary 
+      // Test the DefaultErrorWidget directly since error boundary
       // testing in Flutter is complex and not critical for user functionality
       await tester.pumpWidget(
         MaterialApp(
@@ -39,7 +41,8 @@ void main() {
       expect(find.byIcon(Icons.warning), findsOneWidget);
     });
 
-    testWidgets('should show retry button when onRetry is provided', (WidgetTester tester) async {
+    testWidgets('should show retry button when onRetry is provided',
+        (WidgetTester tester) async {
       final error = AppError(
         message: 'Retryable error',
         stackTrace: '',
@@ -71,7 +74,8 @@ void main() {
       expect(retryPressed, true);
     });
 
-    testWidgets('should display correct icon based on error severity', (WidgetTester tester) async {
+    testWidgets('should display correct icon based on error severity',
+        (WidgetTester tester) async {
       // Test critical error
       final criticalError = AppError(
         message: 'Critical error',
@@ -109,7 +113,8 @@ void main() {
       expect(find.byIcon(Icons.info), findsOneWidget);
     });
 
-    testWidgets('should display appropriate error message based on error type', (WidgetTester tester) async {
+    testWidgets('should display appropriate error message based on error type',
+        (WidgetTester tester) async {
       // Test network error
       final networkError = AppError(
         message: 'Network failed',
@@ -126,7 +131,8 @@ void main() {
         ),
       );
 
-      expect(find.text('Please check your internet connection and try again.'), findsOneWidget);
+      expect(find.text('Please check your internet connection and try again.'),
+          findsOneWidget);
 
       // Test validation error
       final validationError = AppError(
@@ -144,12 +150,14 @@ void main() {
         ),
       );
 
-      expect(find.text('Please check your input and try again.'), findsOneWidget);
+      expect(
+          find.text('Please check your input and try again.'), findsOneWidget);
     });
   });
 
   group('Error Color and Icon Tests', () {
-    testWidgets('should use correct colors for different severities', (WidgetTester tester) async {
+    testWidgets('should use correct colors for different severities',
+        (WidgetTester tester) async {
       final highError = AppError(
         message: 'High severity error',
         stackTrace: '',

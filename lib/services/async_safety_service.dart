@@ -31,7 +31,8 @@ class AsyncSafetyService {
         return SafeResult.success(result);
       } on TimeoutException catch (e, stackTrace) {
         final error = AppError(
-          message: 'Operation "$name" timed out after ${effectiveTimeout.inSeconds} seconds',
+          message:
+              'Operation "$name" timed out after ${effectiveTimeout.inSeconds} seconds',
           stackTrace: stackTrace.toString(),
           type: ErrorType.network,
           severity: ErrorSeverity.high,
@@ -128,13 +129,11 @@ class AsyncSafetyService {
       return results;
     } else {
       // Execute all operations regardless of failures
-      final futures = operations.asMap().entries.map((entry) =>
-        executeSafely(
-          entry.value,
-          timeout: timeout,
-          operationName: 'Operation ${entry.key + 1}',
-        )
-      );
+      final futures = operations.asMap().entries.map((entry) => executeSafely(
+            entry.value,
+            timeout: timeout,
+            operationName: 'Operation ${entry.key + 1}',
+          ));
       return await Future.wait(futures);
     }
   }
@@ -158,7 +157,7 @@ class AsyncSafetyService {
           timestamp: DateTime.now(),
           context: 'AsyncSafetyService.createSafeSubscription',
         );
-        
+
         GlobalErrorHandler().reportError(appError);
         onError?.call(appError);
       },
@@ -184,7 +183,7 @@ class AsyncSafetyService {
     Duration interval = const Duration(milliseconds: 1000),
   }) {
     final now = DateTime.now();
-    if (_lastThrottleTime == null || 
+    if (_lastThrottleTime == null ||
         now.difference(_lastThrottleTime!) >= interval) {
       _lastThrottleTime = now;
       callback();
@@ -264,7 +263,7 @@ class CircuitBreaker {
 
   bool _shouldAttemptReset() {
     return _lastFailureTime != null &&
-           DateTime.now().difference(_lastFailureTime!) >= resetTimeout;
+        DateTime.now().difference(_lastFailureTime!) >= resetTimeout;
   }
 
   void _onSuccess() {
@@ -336,7 +335,7 @@ class SafeHttpClient {
 
       return await circuitBreaker.execute(() async {
         final request = await _client.getUrl(uri);
-        
+
         // Add headers
         headers?.forEach((key, value) {
           request.headers.add(key, value);
@@ -371,4 +370,3 @@ class SafeHttpClient {
     _client.close();
   }
 }
-

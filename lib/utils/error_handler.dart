@@ -63,7 +63,8 @@ class QuikTikErrorHandler {
   }
 
   /// Show user-friendly error dialog
-  static void showErrorDialog(BuildContext context, dynamic error, {String? title}) {
+  static void showErrorDialog(BuildContext context, dynamic error,
+      {String? title}) {
     if (!context.mounted) return;
 
     showDialog(
@@ -88,11 +89,11 @@ class QuikTikErrorHandler {
       return await operation();
     } catch (error, stackTrace) {
       logError(error, stackTrace, errorContext ?? 'Async Operation');
-      
+
       if (context != null && context.mounted) {
         showErrorDialog(context, error);
       }
-      
+
       return fallbackValue;
     }
   }
@@ -123,9 +124,9 @@ class ErrorDialog extends StatelessWidget {
       title: Text(
         title,
         style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-          color: Theme.of(context).colorScheme.error,
-          fontWeight: FontWeight.bold,
-        ),
+              color: Theme.of(context).colorScheme.error,
+              fontWeight: FontWeight.bold,
+            ),
       ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
@@ -146,9 +147,9 @@ class ErrorDialog extends StatelessWidget {
               child: Text(
                 'Debug Info: ${error.toString()}',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  fontFamily: 'monospace',
-                  color: Colors.grey[700],
-                ),
+                      fontFamily: 'monospace',
+                      color: Colors.grey[700],
+                    ),
               ),
             ),
           ],
@@ -176,9 +177,9 @@ class ErrorDialog extends StatelessWidget {
 class NetworkException implements Exception {
   final String message;
   final int? statusCode;
-  
+
   NetworkException(this.message, {this.statusCode});
-  
+
   @override
   String toString() => 'NetworkException: $message (Status: $statusCode)';
 }
@@ -186,28 +187,30 @@ class NetworkException implements Exception {
 class ValidationException implements Exception {
   final String message;
   final String? field;
-  
+
   ValidationException(this.message, {this.field});
-  
+
   @override
-  String toString() => 'ValidationException: $message${field != null ? ' (Field: $field)' : ''}';
+  String toString() =>
+      'ValidationException: $message${field != null ? ' (Field: $field)' : ''}';
 }
 
 class TimeoutException implements Exception {
   final String message;
   final Duration timeout;
-  
+
   TimeoutException(this.message, this.timeout);
-  
+
   @override
-  String toString() => 'TimeoutException: $message (Timeout: ${timeout.inSeconds}s)';
+  String toString() =>
+      'TimeoutException: $message (Timeout: ${timeout.inSeconds}s)';
 }
 
 /// Global error boundary widget
 class ErrorBoundary extends StatefulWidget {
   final Widget child;
   final Widget Function(dynamic error)? errorWidgetBuilder;
-  
+
   const ErrorBoundary({
     super.key,
     required this.child,
@@ -224,10 +227,10 @@ class _ErrorBoundaryState extends State<ErrorBoundary> {
   @override
   Widget build(BuildContext context) {
     if (_error != null) {
-      return widget.errorWidgetBuilder?.call(_error) ?? 
-        ErrorDisplayWidget(error: _error);
+      return widget.errorWidgetBuilder?.call(_error) ??
+          ErrorDisplayWidget(error: _error);
     }
-    
+
     return ErrorCapture(
       onError: (error) => setState(() => _error = error),
       child: widget.child,
@@ -239,7 +242,7 @@ class _ErrorBoundaryState extends State<ErrorBoundary> {
 class ErrorCapture extends StatelessWidget {
   final Widget child;
   final Function(dynamic error) onError;
-  
+
   const ErrorCapture({
     super.key,
     required this.child,
@@ -259,7 +262,7 @@ class ErrorCapture extends StatelessWidget {
 class ErrorBoundaryWidget extends StatefulWidget {
   final Widget child;
   final Function(dynamic error) onError;
-  
+
   const ErrorBoundaryWidget({
     super.key,
     required this.child,
@@ -275,7 +278,7 @@ class _ErrorBoundaryWidgetState extends State<ErrorBoundaryWidget> {
   Widget build(BuildContext context) {
     return widget.child;
   }
-  
+
   @override
   void didUpdateWidget(ErrorBoundaryWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -286,7 +289,7 @@ class _ErrorBoundaryWidgetState extends State<ErrorBoundaryWidget> {
 /// Default error display widget
 class ErrorDisplayWidget extends StatelessWidget {
   final dynamic error;
-  
+
   const ErrorDisplayWidget({super.key, required this.error});
 
   @override
@@ -307,9 +310,9 @@ class ErrorDisplayWidget extends StatelessWidget {
               Text(
                 'Something went wrong',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  color: Theme.of(context).colorScheme.error,
-                  fontWeight: FontWeight.bold,
-                ),
+                      color: Theme.of(context).colorScheme.error,
+                      fontWeight: FontWeight.bold,
+                    ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
@@ -323,7 +326,7 @@ class ErrorDisplayWidget extends StatelessWidget {
                 onPressed: () {
                   // Restart or navigate to safe state
                   Navigator.of(context).pushNamedAndRemoveUntil(
-                    '/', 
+                    '/',
                     (route) => false,
                   );
                 },

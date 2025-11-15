@@ -121,11 +121,13 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                     children: [
                       // Welcome Badge
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
                         decoration: BoxDecoration(
                           color: Colors.white.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+                          border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.3)),
                         ),
                         child: Text(
                           '👋 WELCOME',
@@ -138,7 +140,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                         ),
                       ),
                       const SizedBox(height: 24),
-                      
+
                       // App Logo & Brand
                       ScaleTransition(
                         scale: _scaleAnimation,
@@ -163,9 +165,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                           ),
                         ),
                       ),
-                      
+
                       const SizedBox(height: 32),
-                      
+
                       // App Name & Tagline
                       SlideTransition(
                         position: _slideAnimation,
@@ -208,15 +210,19 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+                      border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.2)),
                     ),
                     child: Column(
                       children: [
-                        _buildFeatureItem('🎫', 'Buy Queue Tickets', 'Get your spot instantly'),
+                        _buildFeatureItem('🎫', 'Buy Queue Tickets',
+                            'Get your spot instantly'),
                         const SizedBox(height: 16),
-                        _buildFeatureItem('📱', 'Track Your Position', 'Real-time queue updates'),
+                        _buildFeatureItem('📱', 'Track Your Position',
+                            'Real-time queue updates'),
                         const SizedBox(height: 16),
-                        _buildFeatureItem('⭐', 'Save Favorites', 'Quick access to your locations'),
+                        _buildFeatureItem('⭐', 'Save Favorites',
+                            'Quick access to your locations'),
                       ],
                     ),
                   ),
@@ -238,12 +244,18 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                               if (mounted) {
                                 Navigator.of(context).pushReplacement(
                                   PageRouteBuilder(
-                                    pageBuilder: (context, animation, secondaryAnimation) =>
-                                        HomeScreen(onLocaleChange: widget.onLocaleChange),
-                                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                      return FadeTransition(opacity: animation, child: child);
+                                    pageBuilder: (context, animation,
+                                            secondaryAnimation) =>
+                                        HomeScreen(
+                                            onLocaleChange:
+                                                widget.onLocaleChange),
+                                    transitionsBuilder: (context, animation,
+                                        secondaryAnimation, child) {
+                                      return FadeTransition(
+                                          opacity: animation, child: child);
                                     },
-                                    transitionDuration: const Duration(milliseconds: 600),
+                                    transitionDuration:
+                                        const Duration(milliseconds: 600),
                                   ),
                                 );
                               }

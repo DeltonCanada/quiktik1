@@ -12,13 +12,13 @@ abstract class SafeStateManager<T> extends ChangeNotifier {
 
   /// Current state (read-only)
   T? get state => _state;
-  
+
   /// Current error message
   String? get errorMessage => _errorMessage;
-  
+
   /// Loading status
   bool get isLoading => _isLoading;
-  
+
   /// Whether this state manager has been disposed
   bool get disposed => _disposed;
 
@@ -48,7 +48,8 @@ abstract class SafeStateManager<T> extends ChangeNotifier {
         return false;
       }
     } catch (error, stackTrace) {
-      QuikTikErrorHandler.logError(error, stackTrace, 'State Update Error: $context');
+      QuikTikErrorHandler.logError(
+          error, stackTrace, 'State Update Error: $context');
       _handleError(error.toString(), context: context);
       return false;
     }
@@ -64,7 +65,7 @@ abstract class SafeStateManager<T> extends ChangeNotifier {
   @protected
   void setLoading(bool loading, {String? context}) {
     if (_disposed) return;
-    
+
     if (_isLoading != loading) {
       _isLoading = loading;
       if (loading) {
@@ -78,7 +79,7 @@ abstract class SafeStateManager<T> extends ChangeNotifier {
   @protected
   void setError(String errorMessage, {String? context}) {
     if (_disposed) return;
-    
+
     _errorMessage = errorMessage;
     _isLoading = false;
     safeNotifyListeners(context: context);
@@ -87,7 +88,7 @@ abstract class SafeStateManager<T> extends ChangeNotifier {
   /// Handle errors consistently
   void _handleError(String errorMessage, {String? context}) {
     if (_disposed) return;
-    
+
     _errorMessage = errorMessage;
     _isLoading = false;
     safeNotifyListeners(context: 'Error in $context');
@@ -96,7 +97,7 @@ abstract class SafeStateManager<T> extends ChangeNotifier {
   /// Clear error state
   void clearError() {
     if (_disposed) return;
-    
+
     if (_errorMessage != null) {
       _errorMessage = null;
       safeNotifyListeners(context: 'Clear Error');
@@ -107,11 +108,12 @@ abstract class SafeStateManager<T> extends ChangeNotifier {
   @protected
   void safeNotifyListeners({String? context}) {
     if (_disposed) return;
-    
+
     try {
       notifyListeners();
     } catch (error, stackTrace) {
-      QuikTikErrorHandler.logError(error, stackTrace, 'Notify Listeners Error: $context');
+      QuikTikErrorHandler.logError(
+          error, stackTrace, 'Notify Listeners Error: $context');
     }
   }
 
@@ -123,16 +125,17 @@ abstract class SafeStateManager<T> extends ChangeNotifier {
     bool setLoadingState = true,
   }) async {
     if (_disposed) return false;
-    
+
     try {
       if (setLoadingState) setLoading(true, context: context);
-      
+
       await operation();
-      
+
       if (setLoadingState) setLoading(false, context: context);
       return true;
     } catch (error, stackTrace) {
-      QuikTikErrorHandler.logError(error, stackTrace, 'Safe Operation Error: $context');
+      QuikTikErrorHandler.logError(
+          error, stackTrace, 'Safe Operation Error: $context');
       setError(QuikTikErrorHandler.getErrorMessage(error), context: context);
       return false;
     }
@@ -155,7 +158,7 @@ class SafeListStateManager<T> extends SafeStateManager<List<T>> {
   /// Add item safely
   bool addItem(T item, {String? context}) {
     if (disposed) return false;
-    
+
     final currentList = List<T>.from(items);
     currentList.add(item);
     return updateState(currentList, context: context ?? 'Add Item');
@@ -164,7 +167,7 @@ class SafeListStateManager<T> extends SafeStateManager<List<T>> {
   /// Remove item safely
   bool removeItem(T item, {String? context}) {
     if (disposed) return false;
-    
+
     final currentList = List<T>.from(items);
     final removed = currentList.remove(item);
     if (removed) {
@@ -176,7 +179,7 @@ class SafeListStateManager<T> extends SafeStateManager<List<T>> {
   /// Update item at index safely
   bool updateItemAt(int index, T item, {String? context}) {
     if (disposed || index < 0 || index >= items.length) return false;
-    
+
     final currentList = List<T>.from(items);
     currentList[index] = item;
     return updateState(currentList, context: context ?? 'Update Item');
@@ -185,15 +188,16 @@ class SafeListStateManager<T> extends SafeStateManager<List<T>> {
   /// Clear all items safely
   bool clearItems({String? context}) {
     if (disposed) return false;
-    
+
     return updateState(<T>[], context: context ?? 'Clear Items');
   }
 
   /// Replace entire list safely
   bool replaceItems(List<T> newItems, {String? context}) {
     if (disposed) return false;
-    
-    return updateState(List<T>.from(newItems), context: context ?? 'Replace Items');
+
+    return updateState(List<T>.from(newItems),
+        context: context ?? 'Replace Items');
   }
 
   /// Get item safely by index
@@ -205,7 +209,7 @@ class SafeListStateManager<T> extends SafeStateManager<List<T>> {
   /// Find item safely
   T? findItem(bool Function(T) predicate) {
     if (disposed) return null;
-    
+
     try {
       return items.firstWhere(predicate);
     } catch (e) {
@@ -216,7 +220,7 @@ class SafeListStateManager<T> extends SafeStateManager<List<T>> {
   /// Filter items safely
   List<T> filterItems(bool Function(T) predicate) {
     if (disposed) return <T>[];
-    
+
     try {
       return items.where(predicate).toList();
     } catch (e) {
@@ -235,7 +239,7 @@ class SafeMapStateManager<K, V> extends SafeStateManager<Map<K, V>> {
   /// Set value safely
   bool setValue(K key, V value, {String? context}) {
     if (disposed) return false;
-    
+
     final currentMap = Map<K, V>.from(data);
     currentMap[key] = value;
     return updateState(currentMap, context: context ?? 'Set Value');
@@ -244,7 +248,7 @@ class SafeMapStateManager<K, V> extends SafeStateManager<Map<K, V>> {
   /// Remove value safely
   bool removeValue(K key, {String? context}) {
     if (disposed) return false;
-    
+
     final currentMap = Map<K, V>.from(data);
     final removed = currentMap.remove(key);
     if (removed != null) {
@@ -268,14 +272,14 @@ class SafeMapStateManager<K, V> extends SafeStateManager<Map<K, V>> {
   /// Clear all data safely
   bool clearData({String? context}) {
     if (disposed) return false;
-    
+
     return updateState(<K, V>{}, context: context ?? 'Clear Data');
   }
 
   /// Update multiple values safely
   bool updateData(Map<K, V> updates, {String? context}) {
     if (disposed) return false;
-    
+
     final currentMap = Map<K, V>.from(data);
     currentMap.addAll(updates);
     return updateState(currentMap, context: context ?? 'Update Data');
@@ -294,7 +298,8 @@ mixin SafeAsyncMixin {
     try {
       return await operation().timeout(timeout);
     } catch (error, stackTrace) {
-      QuikTikErrorHandler.logError(error, stackTrace, 'Safe Async Call: $context');
+      QuikTikErrorHandler.logError(
+          error, stackTrace, 'Safe Async Call: $context');
       return fallbackValue;
     }
   }
@@ -305,7 +310,8 @@ mixin SafeAsyncMixin {
     Duration timeout = const Duration(seconds: 30),
     String? context,
   }) async {
-    final futures = operations.map((op) => safeAsyncCall(op, timeout: timeout, context: context));
+    final futures = operations
+        .map((op) => safeAsyncCall(op, timeout: timeout, context: context));
     return await Future.wait(futures);
   }
 }
@@ -328,7 +334,8 @@ class SafeStreamManager {
     final subscription = stream.listen(
       onData,
       onError: (error, stackTrace) {
-        QuikTikErrorHandler.logError(error, stackTrace, 'Stream Error: $context');
+        QuikTikErrorHandler.logError(
+            error, stackTrace, 'Stream Error: $context');
         onError?.call(error);
       },
       onDone: onDone,
@@ -386,4 +393,3 @@ class SafeFutureCache<T> {
     _cache.clear();
   }
 }
-

@@ -12,17 +12,18 @@ class AppStateManager extends ChangeNotifier {
   String? _lastError;
   DateTime? _lastStateChange;
   final List<StateTransition> _stateHistory = [];
-  final StreamController<AppState> _stateController = StreamController<AppState>.broadcast();
+  final StreamController<AppState> _stateController =
+      StreamController<AppState>.broadcast();
 
   /// Current app state
   AppState get currentState => _currentState;
-  
+
   /// Last error message
   String? get lastError => _lastError;
-  
+
   /// Time of last state change
   DateTime? get lastStateChange => _lastStateChange;
-  
+
   /// Stream of state changes
   Stream<AppState> get stateStream => _stateController.stream;
 
@@ -44,7 +45,8 @@ class AppStateManager extends ChangeNotifier {
 
   /// Set app as loading with optional message
   void setLoading({String? message}) {
-    _transitionTo(AppState.loading, reason: message ?? 'Loading operation started');
+    _transitionTo(AppState.loading,
+        reason: message ?? 'Loading operation started');
   }
 
   /// Set app in error state
@@ -126,7 +128,8 @@ class AppStateManager extends ChangeNotifier {
   /// Attempt to recover from error state
   void attemptRecovery() {
     if (canRecover) {
-      developer.log('Attempting recovery from error state', name: 'AppStateManager');
+      developer.log('Attempting recovery from error state',
+          name: 'AppStateManager');
       clearError();
     }
   }
@@ -167,5 +170,6 @@ class StateTransition {
   });
 
   @override
-  String toString() => '${from.name} → ${to.name} at ${timestamp.toIso8601String()}${reason != null ? " ($reason)" : ""}';
+  String toString() =>
+      '${from.name} → ${to.name} at ${timestamp.toIso8601String()}${reason != null ? " ($reason)" : ""}';
 }

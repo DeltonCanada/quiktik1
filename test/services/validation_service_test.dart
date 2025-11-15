@@ -58,7 +58,8 @@ void main() {
 
         for (final phone in invalidPhones) {
           final result = validationService.validatePhoneNumber(phone);
-          expect(result.isValid, false, reason: 'Should fail for phone: $phone');
+          expect(result.isValid, false,
+              reason: 'Should fail for phone: $phone');
         }
       });
     });
@@ -84,19 +85,23 @@ void main() {
 
     group('Length Validation', () {
       test('should validate minimum length correctly', () {
-        final validResult = validationService.validateMinLength('hello', 3, 'Field');
+        final validResult =
+            validationService.validateMinLength('hello', 3, 'Field');
         expect(validResult.isValid, true);
 
-        final invalidResult = validationService.validateMinLength('hi', 3, 'Field');
+        final invalidResult =
+            validationService.validateMinLength('hi', 3, 'Field');
         expect(invalidResult.isValid, false);
         expect(invalidResult.error, 'Field must be at least 3 characters');
       });
 
       test('should validate maximum length correctly', () {
-        final validResult = validationService.validateMaxLength('hi', 3, 'Field');
+        final validResult =
+            validationService.validateMaxLength('hi', 3, 'Field');
         expect(validResult.isValid, true);
 
-        final invalidResult = validationService.validateMaxLength('hello', 3, 'Field');
+        final invalidResult =
+            validationService.validateMaxLength('hello', 3, 'Field');
         expect(invalidResult.isValid, false);
         expect(invalidResult.error, 'Field must be no more than 3 characters');
       });

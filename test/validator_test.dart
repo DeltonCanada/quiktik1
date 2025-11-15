@@ -71,8 +71,8 @@ void main() {
     group('Input Validation', () {
       test('should validate required fields', () {
         final result = QuikTikValidator.validateUserInput(
-          'Name', 
-          'John Doe', 
+          'Name',
+          'John Doe',
           required: true,
         );
         expect(result.isValid, true);
@@ -80,8 +80,8 @@ void main() {
 
       test('should fail validation for empty required fields', () {
         final result = QuikTikValidator.validateUserInput(
-          'Name', 
-          '', 
+          'Name',
+          '',
           required: true,
         );
         expect(result.isValid, false);
@@ -90,8 +90,8 @@ void main() {
 
       test('should validate minimum length', () {
         final result = QuikTikValidator.validateUserInput(
-          'Name', 
-          'Jo', 
+          'Name',
+          'Jo',
           minLength: 3,
         );
         expect(result.isValid, false);
@@ -100,8 +100,8 @@ void main() {
 
       test('should validate maximum length', () {
         final result = QuikTikValidator.validateUserInput(
-          'Name', 
-          'This is a very long name that exceeds the limit', 
+          'Name',
+          'This is a very long name that exceeds the limit',
           maxLength: 20,
         );
         expect(result.isValid, false);
@@ -111,7 +111,8 @@ void main() {
 
     group('Sanitization', () {
       test('should remove HTML tags', () {
-        final result = QuikTikValidator.sanitizeInput('<script>alert("test")</script>Hello');
+        final result = QuikTikValidator.sanitizeInput(
+            '<script>alert("test")</script>Hello');
         expect(result, 'Hello');
       });
 

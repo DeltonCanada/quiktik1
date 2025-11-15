@@ -7,7 +7,8 @@ class NetworkMonitor {
   factory NetworkMonitor() => _instance;
   NetworkMonitor._internal();
 
-  final StreamController<bool> _connectionController = StreamController<bool>.broadcast();
+  final StreamController<bool> _connectionController =
+      StreamController<bool>.broadcast();
   Timer? _pingTimer;
   bool _isOnline = true;
   DateTime? _lastConnectedTime;
@@ -28,10 +29,10 @@ class NetworkMonitor {
   void initialize() {
     // Start with online status
     _updateConnectionStatus(true);
-    
+
     // Start periodic connectivity check
     _startPeriodicCheck();
-    
+
     developer.log('Network monitor initialized', name: 'NetworkMonitor');
   }
 
@@ -47,7 +48,7 @@ class NetworkMonitor {
       // Simple connectivity check - for web platform
       // In a real implementation, you might ping a known endpoint
       await Future.delayed(const Duration(milliseconds: 100));
-      
+
       const isConnected = true; // Assume connected for web platform
       _updateConnectionStatus(isConnected);
       return isConnected;
@@ -61,14 +62,14 @@ class NetworkMonitor {
   void _updateConnectionStatus(bool isOnline) {
     if (_isOnline != isOnline) {
       _isOnline = isOnline;
-      
+
       if (isOnline) {
         _lastConnectedTime = DateTime.now();
         developer.log('Network connection available', name: 'NetworkMonitor');
       } else {
         developer.log('Network connection unavailable', name: 'NetworkMonitor');
       }
-      
+
       _connectionController.add(isOnline);
     }
   }

@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/di/app_providers.dart';
 import '../services/auth_service.dart';
 import '../utils/app_localizations.dart';
 
-class RegisterScreen extends StatefulWidget {
+class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
 
   @override
-  State<RegisterScreen> createState() => _RegisterScreenState();
+  ConsumerState<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> {
+class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -238,7 +239,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     FocusScope.of(context).unfocus();
 
-    final authService = context.read<AuthService>();
+    final authService = ref.read(authServiceProvider);
     final messenger = ScaffoldMessenger.of(context);
     final localizations = AppLocalizations.of(context)!;
 

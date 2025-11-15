@@ -31,27 +31,27 @@ class QueueTicket {
   bool get isExpired => DateTime.now().isAfter(expirationTime);
   bool get isUsed => status == QueueTicketStatus.used;
   bool get isYourTurn => status == QueueTicketStatus.yourTurn;
-  
+
   // Countdown functionality for when it's customer's turn
   Duration? get remainingTime {
     if (!isYourTurn || turnStartTime == null) return null;
-    
+
     const fiveMinutes = Duration(minutes: 5);
     final elapsed = DateTime.now().difference(turnStartTime!);
     final remaining = fiveMinutes - elapsed;
-    
+
     return remaining.isNegative ? Duration.zero : remaining;
   }
-  
+
   bool get countdownExpired {
     final remaining = remainingTime;
     return remaining != null && remaining == Duration.zero;
   }
-  
+
   String get countdownText {
     final remaining = remainingTime;
     if (remaining == null) return '';
-    
+
     final minutes = remaining.inMinutes;
     final seconds = remaining.inSeconds % 60;
     return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';

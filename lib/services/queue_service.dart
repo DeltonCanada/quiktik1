@@ -24,12 +24,16 @@ class QueueService {
   List<Payment> get userPayments => _userPayments;
 
   void initializeQueues(List<Establishment> establishments) {
-    developer.log('🏪 Initializing queues for ${establishments.length} establishments', name: 'QueueService');
+    developer.log(
+        '🏪 Initializing queues for ${establishments.length} establishments',
+        name: 'QueueService');
     bool hasNewQueues = false;
 
     for (var establishment in establishments) {
       if (_queueStatuses.containsKey(establishment.id)) {
-        developer.log('⏭️ Queue already exists for establishment: ${establishment.id}', name: 'QueueService');
+        developer.log(
+            '⏭️ Queue already exists for establishment: ${establishment.id}',
+            name: 'QueueService');
         continue;
       }
 
@@ -37,9 +41,12 @@ class QueueService {
       final currentlyServing = _generateRandomNumber(1, 20);
       final totalWaiting = _generateRandomNumber(5, 25);
 
-      developer.log('🆕 Creating new queue for ${establishment.id}:', name: 'QueueService');
-      developer.log('  📋 Available numbers: $availableNumbers', name: 'QueueService');
-      developer.log('  🎯 Currently serving: $currentlyServing', name: 'QueueService');
+      developer.log('🆕 Creating new queue for ${establishment.id}:',
+          name: 'QueueService');
+      developer.log('  📋 Available numbers: $availableNumbers',
+          name: 'QueueService');
+      developer.log('  🎯 Currently serving: $currentlyServing',
+          name: 'QueueService');
       developer.log('  👥 Total waiting: $totalWaiting', name: 'QueueService');
 
       _queueStatuses[establishment.id] = QueueStatus(
@@ -54,45 +61,53 @@ class QueueService {
     }
 
     if (hasNewQueues) {
-      developer.log('📤 Broadcasting queue status updates', name: 'QueueService');
+      developer.log('📤 Broadcasting queue status updates',
+          name: 'QueueService');
       _queueStatusController.add(Map<String, QueueStatus>.from(_queueStatuses));
     }
 
-    developer.log('✅ Queue initialization complete. Total queues: ${_queueStatuses.length}', name: 'QueueService');
-    
+    developer.log(
+        '✅ Queue initialization complete. Total queues: ${_queueStatuses.length}',
+        name: 'QueueService');
+
     // Add demo tickets for testing
     _createDemoTickets(establishments);
-    
+
     _startQueueUpdates();
   }
 
   void _createDemoTickets(List<Establishment> establishments) {
     if (establishments.isNotEmpty && _userTickets.isEmpty) {
-      developer.log('🎫 Creating demo tickets for testing', name: 'QueueService');
-      
+      developer.log('🎫 Creating demo tickets for testing',
+          name: 'QueueService');
+
       // Create 2-3 demo tickets
       for (int i = 0; i < min(3, establishments.length); i++) {
         final establishment = establishments[i];
         final queueStatus = _queueStatuses[establishment.id];
         if (queueStatus != null) {
-          final demoNumber = queueStatus.currentlyServing + _generateRandomNumber(1, 5);
-          
+          final demoNumber =
+              queueStatus.currentlyServing + _generateRandomNumber(1, 5);
+
           final demoTicket = QueueTicket(
             id: 'demo_ticket_${DateTime.now().millisecondsSinceEpoch}_$i',
             establishmentId: establishment.id,
             establishmentName: establishment.name,
             establishmentAddress: establishment.address,
             queueNumber: demoNumber,
-            purchaseTime: DateTime.now().subtract(Duration(minutes: _generateRandomNumber(5, 60))),
+            purchaseTime: DateTime.now()
+                .subtract(Duration(minutes: _generateRandomNumber(5, 60))),
             expirationTime: DateTime.now().add(const Duration(hours: 24)),
             status: QueueTicketStatus.active,
             paymentId: 'demo_payment_${_generateRandomNumber(100000, 999999)}',
             amount: queueAccessFee,
             turnStartTime: null, // Will be set when it's customer's turn
           );
-          
+
           _userTickets.add(demoTicket);
-          developer.log('🎟️ Created demo ticket #$demoNumber for ${establishment.name}', name: 'QueueService');
+          developer.log(
+              '🎟️ Created demo ticket #$demoNumber for ${establishment.name}',
+              name: 'QueueService');
         }
       }
     }
@@ -110,7 +125,8 @@ class QueueService {
     }
 
     final result = numbers.toList()..sort();
-    developer.log('🎲 Generated available numbers: $result', name: 'QueueService');
+    developer.log('🎲 Generated available numbers: $result',
+        name: 'QueueService');
     return result;
   }
 
@@ -165,7 +181,7 @@ class QueueService {
     _queueStatuses.clear();
     _queueStatuses.addAll(updatedStatuses);
     _queueStatusController.add(Map<String, QueueStatus>.from(_queueStatuses));
-    
+
     // Check if any customer tickets are now being served (their turn)
     _checkCustomerTurn();
   }
@@ -173,42 +189,48 @@ class QueueService {
   void _checkCustomerTurn() {
     for (int i = 0; i < _userTickets.length; i++) {
       final ticket = _userTickets[i];
-      
+
       if (ticket.status == QueueTicketStatus.active) {
         final queueStatus = _queueStatuses[ticket.establishmentId];
-        
-        if (queueStatus != null && 
+
+        if (queueStatus != null &&
             ticket.queueNumber == queueStatus.currentlyServing) {
           // It's this customer's turn! Start the 5-minute countdown
           _userTickets[i] = ticket.copyWith(
             status: QueueTicketStatus.yourTurn,
             turnStartTime: DateTime.now(),
           );
-          
-          developer.log('🎯 Customer turn started! Ticket #${ticket.queueNumber} at ${ticket.establishmentName}', 
-                       name: 'QueueService');
+
+          developer.log(
+              '🎯 Customer turn started! Ticket #${ticket.queueNumber} at ${ticket.establishmentName}',
+              name: 'QueueService');
         }
       }
-      
+
       // Check if countdown has expired
-      if (ticket.status == QueueTicketStatus.yourTurn && ticket.countdownExpired) {
+      if (ticket.status == QueueTicketStatus.yourTurn &&
+          ticket.countdownExpired) {
         _userTickets[i] = ticket.copyWith(
           status: QueueTicketStatus.expired,
         );
-        
-        developer.log('⏰ Countdown expired for ticket #${ticket.queueNumber}', 
-                     name: 'QueueService');
+
+        developer.log('⏰ Countdown expired for ticket #${ticket.queueNumber}',
+            name: 'QueueService');
       }
     }
   }
 
   QueueStatus? getQueueStatus(String establishmentId) {
-    developer.log('🔍 Getting queue status for: $establishmentId', name: 'QueueService');
+    developer.log('🔍 Getting queue status for: $establishmentId',
+        name: 'QueueService');
     final status = _queueStatuses[establishmentId];
     if (status != null) {
-      developer.log('✅ Found queue status: serving ${status.currentlyServing}, available ${status.availableNumbers}', name: 'QueueService');
+      developer.log(
+          '✅ Found queue status: serving ${status.currentlyServing}, available ${status.availableNumbers}',
+          name: 'QueueService');
     } else {
-      developer.log('❌ No queue status found for: $establishmentId', name: 'QueueService');
+      developer.log('❌ No queue status found for: $establishmentId',
+          name: 'QueueService');
     }
     return status;
   }
@@ -290,18 +312,18 @@ class QueueService {
 
   List<QueueTicket> getActiveTickets() {
     final paidTicketIds = _userPayments
-      .where((payment) => payment.status == PaymentStatus.completed)
-      .map((payment) => payment.id)
-      .toSet();
+        .where((payment) => payment.status == PaymentStatus.completed)
+        .map((payment) => payment.id)
+        .toSet();
 
     return _userTickets
-      .where(
-        (ticket) =>
-          (ticket.status == QueueTicketStatus.active ||
-            ticket.status == QueueTicketStatus.yourTurn) &&
-          paidTicketIds.contains(ticket.paymentId),
-      )
-      .toList();
+        .where(
+          (ticket) =>
+              (ticket.status == QueueTicketStatus.active ||
+                  ticket.status == QueueTicketStatus.yourTurn) &&
+              paidTicketIds.contains(ticket.paymentId),
+        )
+        .toList();
   }
 
   List<QueueTicket> getTicketsForEstablishment(String establishmentId) {
@@ -329,9 +351,10 @@ class QueueService {
           status: QueueTicketStatus.yourTurn,
           turnStartTime: DateTime.now(),
         );
-        
-        developer.log('🎯 Manually triggered customer turn for ticket #${ticket.queueNumber}', 
-                     name: 'QueueService');
+
+        developer.log(
+            '🎯 Manually triggered customer turn for ticket #${ticket.queueNumber}',
+            name: 'QueueService');
       }
     }
   }

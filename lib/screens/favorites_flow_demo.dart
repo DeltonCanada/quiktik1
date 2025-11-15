@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../core/di/app_providers.dart';
 import '../utils/app_localizations.dart';
 import '../widgets/my_favorite_establishments_widget.dart';
 import '../services/favorites_service.dart';
@@ -6,21 +9,35 @@ import '../models/location_models.dart';
 
 /// Test screen to demonstrate the favorite establishments flow
 /// Shows how marking establishments as favorites immediately updates the widget
-class FavoritesFlowDemo extends StatefulWidget {
+class FavoritesFlowDemo extends ConsumerStatefulWidget {
   const FavoritesFlowDemo({super.key});
 
   @override
-  State<FavoritesFlowDemo> createState() => _FavoritesFlowDemoState();
+  ConsumerState<FavoritesFlowDemo> createState() => _FavoritesFlowDemoState();
 }
 
-class _FavoritesFlowDemoState extends State<FavoritesFlowDemo> {
-  final FavoritesService _favoritesService = FavoritesService();
+class _FavoritesFlowDemoState extends ConsumerState<FavoritesFlowDemo> {
+  late FavoritesService _favoritesService;
   late List<Establishment> _availableEstablishments;
 
   @override
   void initState() {
     super.initState();
+    _favoritesService = ref.read(favoritesServiceProvider);
+    _favoritesService.addListener(_onFavoritesChanged);
     _initializeTestEstablishments();
+  }
+
+  @override
+  void dispose() {
+    _favoritesService.removeListener(_onFavoritesChanged);
+    super.dispose();
+  }
+
+  void _onFavoritesChanged() {
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   void _initializeTestEstablishments() {

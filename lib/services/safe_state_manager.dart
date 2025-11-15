@@ -10,16 +10,16 @@ abstract class SafeStateManager<T> extends ChangeNotifier {
 
   /// Current state (nullable for safety)
   T? get state => _state;
-  
+
   /// Current error if any
   AppError? get error => _error;
-  
+
   /// Whether the manager is in loading state
   bool get isLoading => _isLoading;
-  
+
   /// Whether the manager has been disposed
   bool get isDisposed => _isDisposed;
-  
+
   /// Whether the state is valid and not null
   bool get hasValidState => _state != null && _error == null;
 
@@ -71,7 +71,7 @@ abstract class SafeStateManager<T> extends ChangeNotifier {
   /// Set loading state safely
   void safeSetLoading(bool loading) {
     if (_isDisposed) return;
-    
+
     _isLoading = loading;
     _notifySafely();
   }
@@ -79,7 +79,7 @@ abstract class SafeStateManager<T> extends ChangeNotifier {
   /// Set error state
   void _setError(AppError error) {
     if (_isDisposed) return;
-    
+
     _error = error;
     _isLoading = false;
     GlobalErrorHandler().reportError(error);
@@ -89,7 +89,7 @@ abstract class SafeStateManager<T> extends ChangeNotifier {
   /// Clear error state
   void clearError() {
     if (_isDisposed) return;
-    
+
     _error = null;
     _notifySafely();
   }
@@ -120,7 +120,7 @@ abstract class SafeStateManager<T> extends ChangeNotifier {
   /// Safely notify listeners
   void _notifySafely() {
     if (_isDisposed) return;
-    
+
     try {
       notifyListeners();
     } catch (e, stackTrace) {
@@ -143,7 +143,7 @@ abstract class SafeStateManager<T> extends ChangeNotifier {
   /// Reset to initial state
   void reset() {
     if (_isDisposed) return;
-    
+
     _state = null;
     _error = null;
     _isLoading = false;
@@ -163,8 +163,12 @@ class SafeResult<T> {
   final AppError? error;
   final bool isSuccess;
 
-  SafeResult.success(this.data) : error = null, isSuccess = true;
-  SafeResult.error(this.error) : data = null, isSuccess = false;
+  SafeResult.success(this.data)
+      : error = null,
+        isSuccess = true;
+  SafeResult.error(this.error)
+      : data = null,
+        isSuccess = false;
 
   /// Execute a callback if the result is successful
   SafeResult<R> then<R>(R Function(T data) callback) {

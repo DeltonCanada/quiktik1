@@ -1,28 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../core/di/app_providers.dart';
 import '../services/favorites_service.dart';
 import '../utils/app_localizations.dart';
 
 /// A simple widget that shows real-time favorites count
 /// Demonstrates the live connection between favorite actions and the UI
-class FavoritesCounterWidget extends StatefulWidget {
+class FavoritesCounterWidget extends ConsumerStatefulWidget {
   const FavoritesCounterWidget({super.key});
 
   @override
-  State<FavoritesCounterWidget> createState() => _FavoritesCounterWidgetState();
+  ConsumerState<FavoritesCounterWidget> createState() =>
+      _FavoritesCounterWidgetState();
 }
 
-class _FavoritesCounterWidgetState extends State<FavoritesCounterWidget>
+class _FavoritesCounterWidgetState extends ConsumerState<FavoritesCounterWidget>
     with TickerProviderStateMixin {
-  final FavoritesService _favoritesService = FavoritesService();
-  late AnimationController _animationController;
-  late Animation<double> _scaleAnimation;
-  int _previousCount = 0;
+  late final AnimationController _animationController;
+  late final Animation<double> _scaleAnimation;
 
   @override
   void initState() {
     super.initState();
-    _favoritesService.addListener(_onFavoritesChanged);
-    _previousCount = _favoritesService.favoritesCount;
 
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 500),
@@ -32,37 +32,38 @@ class _FavoritesCounterWidgetState extends State<FavoritesCounterWidget>
     _scaleAnimation = Tween<double>(
       begin: 1.0,
       end: 1.3,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.elasticOut,
-    ));
+    ).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.elasticOut,
+      ),
+    );
+
+    ref.listen<FavoritesService>(favoritesServiceProvider, (previous, next) {
+      final previousCount = previous?.favoritesCount ?? next.favoritesCount;
+      final currentCount = next.favoritesCount;
+
+      if (currentCount != previousCount && mounted) {
+        _animationController.forward(from: 0).then((_) {
+          if (mounted) {
+            _animationController.reverse();
+          }
+        });
+      }
+    });
   }
 
   @override
   void dispose() {
-    _favoritesService.removeListener(_onFavoritesChanged);
     _animationController.dispose();
     super.dispose();
-  }
-
-  void _onFavoritesChanged() {
-    if (mounted) {
-      final currentCount = _favoritesService.favoritesCount;
-      if (currentCount != _previousCount) {
-        // Animate when count changes
-        _animationController.forward().then((_) {
-          _animationController.reverse();
-        });
-        _previousCount = currentCount;
-      }
-      setState(() {});
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
-    final count = _favoritesService.favoritesCount;
+    final favoritesService = ref.watch(favoritesServiceProvider);
+    final count = favoritesService.favoritesCount;
 
     return AnimatedBuilder(
       animation: _scaleAnimation,

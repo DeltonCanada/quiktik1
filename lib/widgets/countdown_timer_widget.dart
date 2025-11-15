@@ -25,12 +25,12 @@ class _CountdownTimerWidgetState extends State<CountdownTimerWidget>
   @override
   void initState() {
     super.initState();
-    
+
     _pulseController = AnimationController(
       duration: const Duration(seconds: 1),
       vsync: this,
     );
-    
+
     _pulseAnimation = Tween<double>(
       begin: 1.0,
       end: 1.1,
@@ -38,9 +38,9 @@ class _CountdownTimerWidgetState extends State<CountdownTimerWidget>
       parent: _pulseController,
       curve: Curves.easeInOut,
     ));
-    
+
     _pulseController.repeat(reverse: true);
-    
+
     _startCountdown();
   }
 
@@ -55,7 +55,7 @@ class _CountdownTimerWidgetState extends State<CountdownTimerWidget>
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (mounted) {
         setState(() {});
-        
+
         if (widget.ticket.countdownExpired) {
           timer.cancel();
           widget.onExpired?.call();
@@ -77,6 +77,17 @@ class _CountdownTimerWidgetState extends State<CountdownTimerWidget>
 
     final isUrgent = remainingTime.inMinutes < 2;
     final countdownText = widget.ticket.countdownText;
+    final languageCode = Localizations.localeOf(context).languageCode;
+    final isEnglish = languageCode != 'fr';
+
+    final headingText = isEnglish ? 'YOUR TURN!' : 'C\'EST VOTRE TOUR !';
+    final instructionText = isUrgent
+        ? (isEnglish
+            ? 'Hurry! Arrive before the countdown ends.'
+            : 'Dépêchez-vous ! Arrivez avant la fin du compte à rebours.')
+        : (isEnglish
+            ? 'Please arrive before this countdown ends.'
+            : 'Veuillez arriver avant la fin de ce compte à rebours.');
 
     return AnimatedBuilder(
       animation: _pulseAnimation,
@@ -97,7 +108,8 @@ class _CountdownTimerWidgetState extends State<CountdownTimerWidget>
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: (isUrgent ? Colors.red : Colors.orange).withValues(alpha: 0.4),
+                  color: (isUrgent ? Colors.red : Colors.orange)
+                      .withValues(alpha: 0.4),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -110,14 +122,16 @@ class _CountdownTimerWidgetState extends State<CountdownTimerWidget>
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(
-                      isUrgent ? Icons.warning_rounded : Icons.access_time_rounded,
+                      isUrgent
+                          ? Icons.warning_rounded
+                          : Icons.access_time_rounded,
                       color: Colors.white,
                       size: 28,
                     ),
                     const SizedBox(width: 8),
-                    const Text(
-                      'YOUR TURN!',
-                      style: TextStyle(
+                    Text(
+                      headingText,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -126,12 +140,13 @@ class _CountdownTimerWidgetState extends State<CountdownTimerWidget>
                     ),
                   ],
                 ),
-                
+
                 const SizedBox(height: 16),
-                
+
                 // Countdown display
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(12),
@@ -151,14 +166,12 @@ class _CountdownTimerWidgetState extends State<CountdownTimerWidget>
                     ),
                   ),
                 ),
-                
+
                 const SizedBox(height: 12),
-                
+
                 // Instructions
                 Text(
-                  isUrgent 
-                    ? 'HURRY! TIME RUNNING OUT!'
-                    : 'You have 5 minutes to arrive',
+                  instructionText,
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.9),
                     fontSize: 14,
@@ -167,9 +180,9 @@ class _CountdownTimerWidgetState extends State<CountdownTimerWidget>
                   ),
                   textAlign: TextAlign.center,
                 ),
-                
+
                 const SizedBox(height: 16),
-                
+
                 // Action buttons
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -185,7 +198,9 @@ class _CountdownTimerWidgetState extends State<CountdownTimerWidget>
                         label: const Text('I\'m Here!'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.white,
-                          foregroundColor: isUrgent ? Colors.red.shade600 : Colors.orange.shade600,
+                          foregroundColor: isUrgent
+                              ? Colors.red.shade600
+                              : Colors.orange.shade600,
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
@@ -193,9 +208,9 @@ class _CountdownTimerWidgetState extends State<CountdownTimerWidget>
                         ),
                       ),
                     ),
-                    
+
                     const SizedBox(width: 12),
-                    
+
                     // Directions button
                     Expanded(
                       child: OutlinedButton.icon(
@@ -207,7 +222,8 @@ class _CountdownTimerWidgetState extends State<CountdownTimerWidget>
                         label: const Text('Directions'),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: Colors.white,
-                          side: const BorderSide(color: Colors.white, width: 1.5),
+                          side:
+                              const BorderSide(color: Colors.white, width: 1.5),
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
@@ -230,7 +246,8 @@ class _CountdownTimerWidgetState extends State<CountdownTimerWidget>
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           title: const Row(
             children: [
               Icon(Icons.check_circle, color: Colors.green, size: 28),
@@ -258,7 +275,8 @@ class _CountdownTimerWidgetState extends State<CountdownTimerWidget>
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           title: const Row(
             children: [
               Icon(Icons.location_on, color: Colors.blue, size: 28),

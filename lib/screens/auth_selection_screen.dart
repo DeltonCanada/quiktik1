@@ -46,7 +46,8 @@ class AuthSelectionScreen extends StatelessWidget {
         ),
         child: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -119,7 +120,8 @@ class AuthSelectionScreen extends StatelessWidget {
                           },
                           style: OutlinedButton.styleFrom(
                             foregroundColor: Colors.white,
-                            side: const BorderSide(color: Colors.white, width: 2),
+                            side:
+                                const BorderSide(color: Colors.white, width: 2),
                             padding: const EdgeInsets.symmetric(vertical: 18),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(14),
@@ -149,7 +151,8 @@ class AuthSelectionScreen extends StatelessWidget {
                                 title: localizations.language == 'Language'
                                     ? 'Reserve your spot'
                                     : 'Réservez votre place',
-                                description: localizations.language == 'Language'
+                                description: localizations.language ==
+                                        'Language'
                                     ? 'Buy queue tickets in advance for your favorite establishments.'
                                     : 'Achetez vos billets à l\'avance pour vos établissements favoris.',
                               ),
@@ -160,7 +163,8 @@ class AuthSelectionScreen extends StatelessWidget {
                                 title: localizations.language == 'Language'
                                     ? 'Real-time updates'
                                     : 'Mises à jour en temps réel',
-                                description: localizations.language == 'Language'
+                                description: localizations.language ==
+                                        'Language'
                                     ? 'See exactly when it\'s your turn with smart countdowns.'
                                     : 'Voyez exactement quand c\'est votre tour grâce aux compte à rebours intelligents.',
                               ),
@@ -171,7 +175,8 @@ class AuthSelectionScreen extends StatelessWidget {
                                 title: localizations.language == 'Language'
                                     ? 'Save favorites'
                                     : 'Enregistrez vos favoris',
-                                description: localizations.language == 'Language'
+                                description: localizations.language ==
+                                        'Language'
                                     ? 'Keep your top locations handy for quick checkouts.'
                                     : 'Gardez vos lieux préférés à portée de main pour des achats rapides.',
                               ),

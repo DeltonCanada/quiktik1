@@ -12,7 +12,8 @@ class GlobalErrorHandler {
   GlobalErrorHandler._internal();
 
   final List<AppError> _errors = [];
-  final StreamController<AppError> _errorStreamController = StreamController<AppError>.broadcast();
+  final StreamController<AppError> _errorStreamController =
+      StreamController<AppError>.broadcast();
 
   Stream<AppError> get errorStream => _errorStreamController.stream;
   List<AppError> get errors => List.unmodifiable(_errors);
@@ -94,7 +95,9 @@ class GlobalErrorHandler {
       name: 'GlobalErrorHandler',
       level: _getSeverityLevel(error.severity),
       error: error.message,
-      stackTrace: error.stackTrace.isNotEmpty ? StackTrace.fromString(error.stackTrace) : null,
+      stackTrace: error.stackTrace.isNotEmpty
+          ? StackTrace.fromString(error.stackTrace)
+          : null,
     );
   }
 
@@ -104,11 +107,11 @@ class GlobalErrorHandler {
       case ErrorSeverity.critical:
         return 1000; // Severe
       case ErrorSeverity.high:
-        return 900;  // Warning
+        return 900; // Warning
       case ErrorSeverity.medium:
-        return 800;  // Info
+        return 800; // Info
       case ErrorSeverity.low:
-        return 700;  // Config
+        return 700; // Config
     }
   }
 
@@ -196,8 +199,8 @@ class _ErrorBoundaryState extends State<ErrorBoundary> {
   @override
   Widget build(BuildContext context) {
     if (_error != null) {
-      return widget.errorBuilder?.call(context, _error!) ?? 
-             DefaultErrorWidget(error: _error!);
+      return widget.errorBuilder?.call(context, _error!) ??
+          DefaultErrorWidget(error: _error!);
     }
 
     return ErrorCatcher(
@@ -272,65 +275,66 @@ class DefaultErrorWidget extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
-            Icon(
-              _getErrorIcon(),
-              size: 64,
-              color: _getErrorColor(),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Oops! Something went wrong',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+              Icon(
+                _getErrorIcon(),
+                size: 64,
                 color: _getErrorColor(),
-                fontWeight: FontWeight.bold,
               ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              _getErrorMessage(),
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Colors.grey[600],
-              ),
-              textAlign: TextAlign.center,
-            ),
-            if (onRetry != null) ...[
-              const SizedBox(height: 24),
-              ElevatedButton.icon(
-                onPressed: onRetry,
-                icon: const Icon(Icons.refresh),
-                label: const Text('Try Again'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).primaryColor,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                ),
-              ),
-            ],
-            if (kDebugMode) ...[
               const SizedBox(height: 16),
-              ExpansionTile(
-                title: const Text('Error Details'),
-                children: [
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      borderRadius: BorderRadius.circular(8),
+              Text(
+                'Oops! Something went wrong',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      color: _getErrorColor(),
+                      fontWeight: FontWeight.bold,
                     ),
-                    child: Text(
-                      error.message,
-                      style: const TextStyle(
-                        fontFamily: 'monospace',
-                        fontSize: 12,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                _getErrorMessage(),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Colors.grey[600],
+                    ),
+                textAlign: TextAlign.center,
+              ),
+              if (onRetry != null) ...[
+                const SizedBox(height: 24),
+                ElevatedButton.icon(
+                  onPressed: onRetry,
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('Try Again'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).primaryColor,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 12),
+                  ),
+                ),
+              ],
+              if (kDebugMode) ...[
+                const SizedBox(height: 16),
+                ExpansionTile(
+                  title: const Text('Error Details'),
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        error.message,
+                        style: const TextStyle(
+                          fontFamily: 'monospace',
+                          fontSize: 12,
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
+              ],
             ],
-          ],
           ),
         ),
       ),

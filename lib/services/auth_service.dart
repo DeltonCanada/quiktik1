@@ -81,7 +81,9 @@ class AuthService extends ChangeNotifier {
       return 'QuikTik User';
     }
 
-    final segments = localPart.split(RegExp(r'[._-]+')).where((segment) => segment.isNotEmpty);
+    final segments = localPart
+        .split(RegExp(r'[._-]+'))
+        .where((segment) => segment.isNotEmpty);
     if (segments.isEmpty) {
       return localPart;
     }
@@ -93,7 +95,8 @@ class AuthService extends ChangeNotifier {
 }
 
 class _AuthUser {
-  const _AuthUser({required this.name, required this.email, required this.password});
+  const _AuthUser(
+      {required this.name, required this.email, required this.password});
 
   final String name;
   final String email;

@@ -1,12 +1,16 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../core/di/app_providers.dart';
 import '../utils/app_localizations.dart';
 import '../models/location_models.dart';
 import '../models/queue_models.dart';
-import '../services/queue_service.dart';
 import '../widgets/active_tickets_widget.dart';
 import '../widgets/invoice_widget.dart';
 
-class TicketConfirmationScreen extends StatefulWidget {
+class TicketConfirmationScreen extends ConsumerStatefulWidget {
   final QueueTicket ticket;
   final Payment payment;
   final Establishment establishment;
@@ -19,28 +23,34 @@ class TicketConfirmationScreen extends StatefulWidget {
   });
 
   @override
-  State<TicketConfirmationScreen> createState() =>
+  ConsumerState<TicketConfirmationScreen> createState() =>
       _TicketConfirmationScreenState();
 }
 
-class _TicketConfirmationScreenState extends State<TicketConfirmationScreen> {
+class _TicketConfirmationScreenState
+    extends ConsumerState<TicketConfirmationScreen> {
+  static const int _redirectDelaySeconds = 5;
+
+  Timer? _redirectTimer;
+  int _secondsRemaining = _redirectDelaySeconds;
+  bool _hasRedirected = false;
+
   @override
   void initState() {
     super.initState();
-    // Automatically show Active Tickets after a short delay
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Future.delayed(const Duration(seconds: 2), () {
-        if (mounted) {
-          _showActiveTickets(context);
-        }
-      });
-    });
+    _startRedirectCountdown();
+  }
+
+  @override
+  void dispose() {
+    _cancelRedirectCountdown();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
-    final queueService = QueueService();
+    final queueService = ref.read(queueServiceProvider);
     final invoice = queueService.generateInvoice(widget.payment, widget.ticket);
 
     return Scaffold(
@@ -54,8 +64,7 @@ class _TicketConfirmationScreenState extends State<TicketConfirmationScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.home),
-            onPressed: () =>
-                Navigator.of(context).popUntil((route) => route.isFirst),
+            onPressed: _redirectToHome,
             tooltip: localizations.language == 'Language' ? 'Home' : 'Accueil',
           ),
         ],
@@ -205,7 +214,7 @@ class _TicketConfirmationScreenState extends State<TicketConfirmationScreen> {
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () => _showActiveTickets(context),
+                    onPressed: () => _handleActiveTicketsTap(context),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Theme.of(context).primaryColor,
                       foregroundColor: Colors.white,
@@ -232,7 +241,8 @@ class _TicketConfirmationScreenState extends State<TicketConfirmationScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: () => _showInvoice(context, invoice),
+                    onPressed: () =>
+                        _handleInvoiceTap(context: context, invoice: invoice),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Theme.of(context).primaryColor,
                       side: BorderSide(color: Theme.of(context).primaryColor),
@@ -261,11 +271,23 @@ class _TicketConfirmationScreenState extends State<TicketConfirmationScreen> {
 
             const SizedBox(height: 16),
 
+            Text(
+              localizations.language == 'Language'
+                  ? 'Redirecting to home in $_secondsRemaining s...'
+                  : 'Redirection vers l\'accueil dans $_secondsRemaining s...',
+              style: TextStyle(
+                color: Colors.grey[600],
+                fontSize: 14,
+              ),
+              textAlign: TextAlign.center,
+            ),
+
+            const SizedBox(height: 12),
+
             SizedBox(
               width: double.infinity,
               child: TextButton(
-                onPressed: () =>
-                    Navigator.of(context).popUntil((route) => route.isFirst),
+                onPressed: _redirectToHome,
                 child: Text(
                   localizations.language == 'Language'
                       ? 'Return to Home'
@@ -311,8 +333,75 @@ class _TicketConfirmationScreenState extends State<TicketConfirmationScreen> {
     return '${dateTime.day}/${dateTime.month}/${dateTime.year} ${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
   }
 
-  void _showActiveTickets(BuildContext context) {
-    showModalBottomSheet(
+  void _startRedirectCountdown() {
+    _redirectTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+
+      if (_secondsRemaining <= 1) {
+        timer.cancel();
+        _redirectToHome();
+      } else {
+        setState(() {
+          _secondsRemaining -= 1;
+        });
+      }
+    });
+  }
+
+  void _cancelRedirectCountdown() {
+    _redirectTimer?.cancel();
+    _redirectTimer = null;
+  }
+
+  void _restartRedirectCountdown() {
+    if (!mounted || _hasRedirected) {
+      return;
+    }
+
+    _cancelRedirectCountdown();
+    setState(() {
+      _secondsRemaining = _redirectDelaySeconds;
+    });
+    _startRedirectCountdown();
+  }
+
+  void _redirectToHome() {
+    if (_hasRedirected) {
+      return;
+    }
+
+    _hasRedirected = true;
+    _cancelRedirectCountdown();
+
+    if (mounted) {
+      Navigator.of(context).popUntil((route) => route.isFirst);
+    }
+  }
+
+  Future<void> _handleActiveTicketsTap(BuildContext context) async {
+    _cancelRedirectCountdown();
+    await _showActiveTickets(context);
+    if (mounted && !_hasRedirected) {
+      _restartRedirectCountdown();
+    }
+  }
+
+  Future<void> _handleInvoiceTap({
+    required BuildContext context,
+    required Invoice invoice,
+  }) async {
+    _cancelRedirectCountdown();
+    await _showInvoice(context, invoice);
+    if (mounted && !_hasRedirected) {
+      _restartRedirectCountdown();
+    }
+  }
+
+  Future<void> _showActiveTickets(BuildContext context) {
+    return showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
@@ -330,8 +419,8 @@ class _TicketConfirmationScreenState extends State<TicketConfirmationScreen> {
     );
   }
 
-  void _showInvoice(BuildContext context, Invoice invoice) {
-    showModalBottomSheet(
+  Future<void> _showInvoice(BuildContext context, Invoice invoice) {
+    return showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(

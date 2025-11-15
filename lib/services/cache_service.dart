@@ -14,20 +14,20 @@ class CacheService {
   void put<T>(String key, T value, {Duration? ttl}) {
     // Clean expired items before adding new ones
     _cleanExpiredItems();
-    
+
     // Manage cache size
     if (_cache.length >= _maxCacheSize) {
       _evictOldestItem();
     }
-    
+
     final cacheItem = CacheItem<T>(
       value: value,
       timestamp: DateTime.now(),
       ttl: ttl ?? _defaultTtl,
     );
-    
+
     _cache[key] = cacheItem;
-    
+
     developer.log('Cached item: $key', name: 'CacheService');
   }
 
@@ -35,17 +35,17 @@ class CacheService {
   T? get<T>(String key) {
     final item = _cache[key];
     if (item == null) return null;
-    
+
     // Check if expired
     if (item.isExpired) {
       _cache.remove(key);
       developer.log('Cache expired: $key', name: 'CacheService');
       return null;
     }
-    
+
     // Update access time for LRU
     item.lastAccessed = DateTime.now();
-    
+
     developer.log('Cache hit: $key', name: 'CacheService');
     return item.value as T?;
   }
@@ -77,7 +77,7 @@ class CacheService {
   /// Get cache statistics
   Map<String, dynamic> getStats() {
     _cleanExpiredItems();
-    
+
     return {
       'total_items': _cache.length,
       'max_size': _maxCacheSize,
@@ -89,29 +89,30 @@ class CacheService {
   /// Clean expired items
   void _cleanExpiredItems() {
     final expiredKeys = <String>[];
-    
+
     for (final entry in _cache.entries) {
       if (entry.value.isExpired) {
         expiredKeys.add(entry.key);
       }
     }
-    
+
     for (final key in expiredKeys) {
       _cache.remove(key);
     }
-    
+
     if (expiredKeys.isNotEmpty) {
-      developer.log('Cleaned ${expiredKeys.length} expired items', name: 'CacheService');
+      developer.log('Cleaned ${expiredKeys.length} expired items',
+          name: 'CacheService');
     }
   }
 
   /// Evict oldest item (LRU)
   void _evictOldestItem() {
     if (_cache.isEmpty) return;
-    
+
     String? oldestKey;
     DateTime? oldestTime;
-    
+
     for (final entry in _cache.entries) {
       final accessTime = entry.value.lastAccessed;
       if (oldestTime == null || accessTime.isBefore(oldestTime)) {
@@ -119,7 +120,7 @@ class CacheService {
         oldestKey = entry.key;
       }
     }
-    
+
     if (oldestKey != null) {
       _cache.remove(oldestKey);
       developer.log('Evicted oldest item: $oldestKey', name: 'CacheService');

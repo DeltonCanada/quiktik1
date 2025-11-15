@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'queue_number_selection_screen.dart';
 import '../utils/app_localizations.dart';
 import '../models/location_models.dart';
 import '../models/queue_models.dart';
 import '../services/queue_service.dart';
+import '../core/di/app_providers.dart';
 
-class PaymentScreen extends StatefulWidget {
+class PaymentScreen extends ConsumerStatefulWidget {
   final Establishment establishment;
 
   const PaymentScreen({super.key, required this.establishment});
 
   @override
-  State<PaymentScreen> createState() => _PaymentScreenState();
+  ConsumerState<PaymentScreen> createState() => _PaymentScreenState();
 }
 
-class _PaymentScreenState extends State<PaymentScreen> {
+class _PaymentScreenState extends ConsumerState<PaymentScreen> {
   PaymentMethod _selectedMethod = PaymentMethod.creditCard;
   bool _isProcessing = false;
   final _cardNumberController = TextEditingController();
@@ -35,7 +36,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
-    final queueService = Provider.of<QueueService>(context, listen: false);
+    final queueService = ref.read(queueServiceProvider);
     final userTicketCount = queueService
         .getUserTicketCountForEstablishment(widget.establishment.id);
 
@@ -418,7 +419,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }
 
   Future<void> _processPayment() async {
-    final queueService = Provider.of<QueueService>(context, listen: false);
+    final queueService = ref.read(queueServiceProvider);
     if (!queueService.canPurchaseMoreTickets(widget.establishment.id)) {
       final localizations = AppLocalizations.of(context)!;
       _showErrorDialog(

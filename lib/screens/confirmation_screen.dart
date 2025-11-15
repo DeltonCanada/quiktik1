@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../services/queue_service.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../core/di/app_providers.dart';
 import '../models/queue_models.dart';
 import '../utils/app_localizations.dart';
 
-class ConfirmationScreen extends StatelessWidget {
+class ConfirmationScreen extends ConsumerWidget {
   final int purchasedNumber;
 
   const ConfirmationScreen({super.key, required this.purchasedNumber});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final localizations = AppLocalizations.of(context)!;
-    final queueService = Provider.of<QueueService>(context, listen: false);
+    final queueService = ref.read(queueServiceProvider);
 
     return Scaffold(
       appBar: AppBar(

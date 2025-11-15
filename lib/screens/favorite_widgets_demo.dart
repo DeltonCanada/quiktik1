@@ -1,25 +1,43 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../core/di/app_providers.dart';
 import '../widgets/my_favorite_establishments_widget.dart';
 import '../widgets/enhanced_favorite_establishments_widget.dart';
 import '../services/favorites_service.dart';
 import '../models/location_models.dart';
 
 /// Demo screen to showcase both favorite establishments widgets
-class FavoriteWidgetsDemo extends StatefulWidget {
+class FavoriteWidgetsDemo extends ConsumerStatefulWidget {
   const FavoriteWidgetsDemo({super.key});
 
   @override
-  State<FavoriteWidgetsDemo> createState() => _FavoriteWidgetsDemoState();
+  ConsumerState<FavoriteWidgetsDemo> createState() =>
+      _FavoriteWidgetsDemoState();
 }
 
-class _FavoriteWidgetsDemoState extends State<FavoriteWidgetsDemo> {
-  final FavoritesService _favoritesService = FavoritesService();
+class _FavoriteWidgetsDemoState extends ConsumerState<FavoriteWidgetsDemo> {
+  late FavoritesService _favoritesService;
   int _selectedTab = 0;
 
   @override
   void initState() {
     super.initState();
+    _favoritesService = ref.read(favoritesServiceProvider);
+    _favoritesService.addListener(_onFavoritesChanged);
     _addSampleFavorites();
+  }
+
+  @override
+  void dispose() {
+    _favoritesService.removeListener(_onFavoritesChanged);
+    super.dispose();
+  }
+
+  void _onFavoritesChanged() {
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   void _addSampleFavorites() {

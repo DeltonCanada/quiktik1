@@ -12,7 +12,8 @@ class ValidationService {
       return ValidationResult.error('Email is required');
     }
 
-    final emailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+    final emailRegex =
+        RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
     if (!emailRegex.hasMatch(email)) {
       return ValidationResult.error('Invalid email format');
     }
@@ -43,17 +44,21 @@ class ValidationService {
   }
 
   /// Validate minimum length
-  ValidationResult validateMinLength(String? value, int minLength, String fieldName) {
+  ValidationResult validateMinLength(
+      String? value, int minLength, String fieldName) {
     if (value == null || value.length < minLength) {
-      return ValidationResult.error('$fieldName must be at least $minLength characters');
+      return ValidationResult.error(
+          '$fieldName must be at least $minLength characters');
     }
     return ValidationResult.success();
   }
 
   /// Validate maximum length
-  ValidationResult validateMaxLength(String? value, int maxLength, String fieldName) {
+  ValidationResult validateMaxLength(
+      String? value, int maxLength, String fieldName) {
     if (value != null && value.length > maxLength) {
-      return ValidationResult.error('$fieldName must be no more than $maxLength characters');
+      return ValidationResult.error(
+          '$fieldName must be no more than $maxLength characters');
     }
     return ValidationResult.success();
   }
@@ -98,7 +103,8 @@ class ValidationService {
     // Check for valid characters (letters, numbers, spaces, basic punctuation)
     final validCharsRegex = RegExp(r'^[a-zA-Z0-9\s\.\-]+$');
     if (!validCharsRegex.hasMatch(name!)) {
-      return ValidationResult.error('Establishment name contains invalid characters');
+      return ValidationResult.error(
+          'Establishment name contains invalid characters');
     }
 
     return ValidationResult.success();
@@ -121,11 +127,17 @@ class ValidationService {
   /// Sanitize input to prevent injection attacks
   String sanitizeInput(String input) {
     return input
-        .replaceAll(RegExp(r'<script[^>]*>.*?</script>', caseSensitive: false, dotAll: true), '') // Remove script tags and content
+        .replaceAll(
+            RegExp(r'<script[^>]*>.*?</script>',
+                caseSensitive: false, dotAll: true),
+            '') // Remove script tags and content
         .replaceAll(RegExp(r'<[^>]*>'), '') // Remove HTML tags
-        .replaceAll(RegExp(r'alert\([^)]*\)', caseSensitive: false), '') // Remove alert functions
-        .replaceAll(RegExp(r'javascript:', caseSensitive: false), '') // Remove javascript: protocols
-        .replaceAll(RegExp(r'[&<>"/]'), '') // Remove potentially dangerous characters
+        .replaceAll(RegExp(r'alert\([^)]*\)', caseSensitive: false),
+            '') // Remove alert functions
+        .replaceAll(RegExp(r'javascript:', caseSensitive: false),
+            '') // Remove javascript: protocols
+        .replaceAll(
+            RegExp(r'[&<>"/]'), '') // Remove potentially dangerous characters
         .trim();
   }
 
@@ -184,7 +196,8 @@ class ValidationResult {
   ValidationResult._(this.isValid, this.error);
 
   factory ValidationResult.success() => ValidationResult._(true, null);
-  factory ValidationResult.error(String error) => ValidationResult._(false, error);
+  factory ValidationResult.error(String error) =>
+      ValidationResult._(false, error);
 
   @override
   String toString() => isValid ? 'Valid' : 'Invalid: $error';
@@ -238,12 +251,14 @@ class LengthValidator implements Validator {
   @override
   ValidationResult validate(String? value) {
     if (minLength != null) {
-      final result = ValidationService().validateMinLength(value, minLength!, fieldName);
+      final result =
+          ValidationService().validateMinLength(value, minLength!, fieldName);
       if (!result.isValid) return result;
     }
 
     if (maxLength != null) {
-      final result = ValidationService().validateMaxLength(value, maxLength!, fieldName);
+      final result =
+          ValidationService().validateMaxLength(value, maxLength!, fieldName);
       if (!result.isValid) return result;
     }
 

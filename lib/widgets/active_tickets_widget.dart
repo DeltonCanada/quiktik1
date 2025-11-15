@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../core/di/app_providers.dart';
 import '../utils/app_localizations.dart';
 import '../models/queue_models.dart';
 import '../services/queue_service.dart';
 import 'countdown_timer_widget.dart';
 
-class ActiveTicketsWidget extends StatefulWidget {
+class ActiveTicketsWidget extends ConsumerStatefulWidget {
   final ScrollController scrollController;
 
   const ActiveTicketsWidget({
@@ -13,16 +16,18 @@ class ActiveTicketsWidget extends StatefulWidget {
   });
 
   @override
-  State<ActiveTicketsWidget> createState() => _ActiveTicketsWidgetState();
+  ConsumerState<ActiveTicketsWidget> createState() =>
+      _ActiveTicketsWidgetState();
 }
 
-class _ActiveTicketsWidgetState extends State<ActiveTicketsWidget> {
-  final QueueService _queueService = QueueService();
+class _ActiveTicketsWidgetState extends ConsumerState<ActiveTicketsWidget> {
+  late QueueService _queueService;
   late Stream<Map<String, QueueStatus>> _queueStatusStream;
 
   @override
   void initState() {
     super.initState();
+    _queueService = ref.read(queueServiceProvider);
     _queueStatusStream = _queueService.queueStatusStream;
   }
 
@@ -73,9 +78,12 @@ class _ActiveTicketsWidgetState extends State<ActiveTicketsWidget> {
                     ),
                     const Spacer(),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                        color: Theme.of(context)
+                            .primaryColor
+                            .withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Text(
@@ -98,11 +106,13 @@ class _ActiveTicketsWidgetState extends State<ActiveTicketsWidget> {
                     decoration: BoxDecoration(
                       color: Colors.green.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
+                      border: Border.all(
+                          color: Colors.green.withValues(alpha: 0.3)),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.account_balance_wallet, color: Colors.green, size: 20),
+                        const Icon(Icons.account_balance_wallet,
+                            color: Colors.green, size: 20),
                         const SizedBox(width: 8),
                         Text(
                           localizations.language == 'Language'
@@ -320,7 +330,8 @@ class _ActiveTicketsWidgetState extends State<ActiveTicketsWidget> {
                   decoration: BoxDecoration(
                     color: Colors.grey[50],
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
+                    border:
+                        Border.all(color: Colors.grey.withValues(alpha: 0.2)),
                   ),
                   child: Column(
                     children: [
@@ -329,13 +340,17 @@ class _ActiveTicketsWidgetState extends State<ActiveTicketsWidget> {
                         width: double.infinity,
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: isBeingServed ? Colors.green.withValues(alpha: 0.2) : Colors.blue.withValues(alpha: 0.1),
+                          color: isBeingServed
+                              ? Colors.green.withValues(alpha: 0.2)
+                              : Colors.blue.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Row(
                           children: [
                             Icon(
-                              isBeingServed ? Icons.person_pin : Icons.people_outline,
+                              isBeingServed
+                                  ? Icons.person_pin
+                                  : Icons.people_outline,
                               color: isBeingServed ? Colors.green : Colors.blue,
                               size: 20,
                             ),
@@ -347,7 +362,8 @@ class _ActiveTicketsWidgetState extends State<ActiveTicketsWidget> {
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
-                                color: isBeingServed ? Colors.green : Colors.blue,
+                                color:
+                                    isBeingServed ? Colors.green : Colors.blue,
                               ),
                             ),
                             Text(
@@ -355,7 +371,8 @@ class _ActiveTicketsWidgetState extends State<ActiveTicketsWidget> {
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color: isBeingServed ? Colors.green : Colors.blue,
+                                color:
+                                    isBeingServed ? Colors.green : Colors.blue,
                               ),
                             ),
                           ],

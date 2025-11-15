@@ -25,7 +25,8 @@ class SecurityService {
       await _setupSecureEnvironment();
       _isInitialized = true;
     } catch (error, stackTrace) {
-      QuikTikErrorHandler.logError(error, stackTrace, 'Security Service Initialization');
+      QuikTikErrorHandler.logError(
+          error, stackTrace, 'Security Service Initialization');
     }
   }
 
@@ -48,7 +49,7 @@ class SecurityService {
     for (final entry in data.entries) {
       final key = _sanitizeKey(entry.key);
       final value = _sanitizeValue(entry.value);
-      
+
       if (key.isNotEmpty && value != null) {
         sanitized[key] = value;
       }
@@ -67,7 +68,7 @@ class SecurityService {
   /// Sanitize values based on type
   dynamic _sanitizeValue(dynamic value) {
     if (value == null) return null;
-    
+
     if (value is String) {
       return QuikTikValidator.sanitizeInput(value);
     } else if (value is Map<String, dynamic>) {
@@ -77,7 +78,7 @@ class SecurityService {
     } else if (value is num || value is bool) {
       return value;
     }
-    
+
     return value.toString();
   }
 
@@ -129,10 +130,12 @@ class SecurityService {
 
   /// Generate secure random string
   String generateSecureToken({int length = 32}) {
-    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const chars =
+        'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     final random = Random.secure();
-    
-    return List.generate(length, (index) => chars[random.nextInt(chars.length)]).join();
+
+    return List.generate(length, (index) => chars[random.nextInt(chars.length)])
+        .join();
   }
 
   /// Simple encryption for sensitive data (for demo purposes - use proper encryption in production)
@@ -140,12 +143,12 @@ class SecurityService {
     try {
       final dataBytes = utf8.encode(data);
       final keyBytes = utf8.encode(key.padRight(32, '0').substring(0, 32));
-      
+
       final encrypted = <int>[];
       for (int i = 0; i < dataBytes.length; i++) {
         encrypted.add(dataBytes[i] ^ keyBytes[i % keyBytes.length]);
       }
-      
+
       return base64Encode(encrypted);
     } catch (error) {
       throw SecurityException('Failed to encrypt data');
@@ -157,12 +160,12 @@ class SecurityService {
     try {
       final encrypted = base64Decode(encryptedData);
       final keyBytes = utf8.encode(key.padRight(32, '0').substring(0, 32));
-      
+
       final decrypted = <int>[];
       for (int i = 0; i < encrypted.length; i++) {
         decrypted.add(encrypted[i] ^ keyBytes[i % keyBytes.length]);
       }
-      
+
       return utf8.decode(decrypted);
     } catch (error) {
       throw SecurityException('Failed to decrypt data');
@@ -175,7 +178,7 @@ class SecurityService {
       final secureKey = _generateSecureKey(key);
       final serializedValue = jsonEncode(value);
       final encryptedValue = encryptData(serializedValue, secureKey);
-      
+
       _secureCache[key] = encryptedValue;
     } catch (error, stackTrace) {
       QuikTikErrorHandler.logError(error, stackTrace, 'Secure Data Storage');
@@ -188,11 +191,11 @@ class SecurityService {
     try {
       final encryptedValue = _secureCache[key];
       if (encryptedValue == null) return null;
-      
+
       final secureKey = _generateSecureKey(key);
       final decryptedValue = decryptData(encryptedValue, secureKey);
       final deserializedValue = jsonDecode(decryptedValue);
-      
+
       return deserializedValue as T?;
     } catch (error, stackTrace) {
       QuikTikErrorHandler.logError(error, stackTrace, 'Secure Data Retrieval');
@@ -230,7 +233,8 @@ class SecurityService {
     // Check for suspicious headers
     if (headers != null) {
       for (final header in headers.entries) {
-        if (_containsMaliciousContent(header.key) || _containsMaliciousContent(header.value)) {
+        if (_containsMaliciousContent(header.key) ||
+            _containsMaliciousContent(header.value)) {
           return false;
         }
       }
@@ -246,14 +250,14 @@ class SecurityService {
   bool checkRateLimit(String endpoint) {
     final now = DateTime.now();
     final calls = _apiCallHistory[endpoint] ?? [];
-    
+
     // Remove calls older than 1 minute
     calls.removeWhere((call) => now.difference(call).inMinutes >= 1);
-    
+
     if (calls.length >= _maxCallsPerMinute) {
       return false; // Rate limit exceeded
     }
-    
+
     calls.add(now);
     _apiCallHistory[endpoint] = calls;
     return true;
@@ -269,13 +273,13 @@ class SecurityService {
   String hashData(String data, String salt) {
     final combined = '$data$salt';
     final bytes = utf8.encode(combined);
-    
+
     // Simple hash implementation (use crypto library in production)
     int hash = 0;
     for (final byte in bytes) {
       hash = ((hash << 5) - hash + byte) & 0xffffffff;
     }
-    
+
     return hash.toRadixString(16);
   }
 
@@ -290,7 +294,7 @@ class SecurityService {
     if (!kDebugMode) {
       // Clear sensitive cache data
       _secureCache.clear();
-      
+
       // Clear clipboard if it contains sensitive data
       Clipboard.setData(const ClipboardData(text: ''));
     }
@@ -308,7 +312,7 @@ class SecurityService {
 class SecurityException implements Exception {
   final String message;
   SecurityException(this.message);
-  
+
   @override
   String toString() => 'SecurityException: $message';
 }
@@ -316,7 +320,8 @@ class SecurityException implements Exception {
 /// Security mixin for widgets that handle sensitive data
 mixin SecurityMixin {
   /// Validate form input securely
-  String? validateSecureInput(String? value, {
+  String? validateSecureInput(
+    String? value, {
     required String fieldName,
     bool required = false,
     int? minLength,
@@ -331,7 +336,7 @@ mixin SecurityMixin {
       maxLength: maxLength,
       pattern: pattern,
     );
-    
+
     return validation.isValid ? null : validation.errorMessage;
   }
 
@@ -343,7 +348,7 @@ mixin SecurityMixin {
     try {
       // Sanitize form data
       final sanitizedData = SecurityService().sanitizeApiRequest(formData);
-      
+
       // Submit data
       return await submitFunction(sanitizedData);
     } catch (error, stackTrace) {
