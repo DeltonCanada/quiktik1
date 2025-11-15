@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
-import 'screens/welcome_screen.dart';
+import 'screens/auth_gate.dart';
+import 'services/auth_service.dart';
 import 'utils/app_localizations.dart';
 import 'services/location_data_service.dart';
 import 'services/queue_service.dart';
@@ -48,6 +49,7 @@ class _QuikTikAppState extends State<QuikTikApp> {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => AuthService()),
         ChangeNotifierProvider(create: (_) => FavoritesService()),
         Provider(create: (_) => QueueService()),
       ],
@@ -206,7 +208,7 @@ class _QuikTikAppState extends State<QuikTikApp> {
           GlobalCupertinoLocalizations.delegate,
         ],
         supportedLocales: const [Locale('en', 'US'), Locale('fr', 'FR')],
-        home: WelcomeScreen(onLocaleChange: _setLocale),
+  home: AuthGate(onLocaleChange: _setLocale),
       ),
     );
   }

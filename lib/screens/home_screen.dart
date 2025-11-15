@@ -1,10 +1,13 @@
 // QuikTik Home Screen - Main entry point for the app
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../utils/app_localizations.dart';
 import '../widgets/language_selector.dart';
 import '../widgets/buy_ticket_widget.dart';
 import '../widgets/my_favorite_establishments_widget.dart';
 import '../widgets/favorites_counter_widget.dart';
+import '../services/auth_service.dart';
+import 'auth_selection_screen.dart';
 import 'about_screen.dart';
 import 'testimonials_screen.dart';
 import 'founder_screen.dart';
@@ -34,6 +37,13 @@ class HomeScreen extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(right: 8.0),
             child: LanguageSelector(onLocaleChange: onLocaleChange),
+          ),
+          IconButton(
+            tooltip: localizations.language == 'Language'
+                ? 'Log out'
+                : 'Se déconnecter',
+            icon: const Icon(Icons.logout),
+            onPressed: () => _handleLogout(context),
           ),
         ],
       ),
@@ -269,5 +279,16 @@ class HomeScreen extends StatelessWidget {
 
   void _navigateToScreen(BuildContext context, Widget screen) {
     Navigator.push(context, MaterialPageRoute(builder: (context) => screen));
+  }
+
+  void _handleLogout(BuildContext context) {
+    context.read<AuthService>().logout();
+
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(
+        builder: (_) => AuthSelectionScreen(onLocaleChange: onLocaleChange),
+      ),
+      (route) => false,
+    );
   }
 }

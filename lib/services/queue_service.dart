@@ -289,11 +289,19 @@ class QueueService {
   }
 
   List<QueueTicket> getActiveTickets() {
+    final paidTicketIds = _userPayments
+      .where((payment) => payment.status == PaymentStatus.completed)
+      .map((payment) => payment.id)
+      .toSet();
+
     return _userTickets
-        .where((ticket) => 
-            ticket.status == QueueTicketStatus.active || 
-            ticket.status == QueueTicketStatus.yourTurn)
-        .toList();
+      .where(
+        (ticket) =>
+          (ticket.status == QueueTicketStatus.active ||
+            ticket.status == QueueTicketStatus.yourTurn) &&
+          paidTicketIds.contains(ticket.paymentId),
+      )
+      .toList();
   }
 
   List<QueueTicket> getTicketsForEstablishment(String establishmentId) {

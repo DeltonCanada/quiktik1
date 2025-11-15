@@ -221,7 +221,7 @@ class _TicketConfirmationScreenState extends State<TicketConfirmationScreen> {
                         const SizedBox(width: 8),
                         Text(
                           localizations.language == 'Language'
-                              ? 'Mis Boletos'
+                              ? 'My Tickets'
                               : 'Mes Billets',
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
@@ -248,7 +248,7 @@ class _TicketConfirmationScreenState extends State<TicketConfirmationScreen> {
                         const SizedBox(width: 8),
                         Text(
                           localizations.language == 'Language'
-                              ? 'Factura'
+                              ? 'Invoice'
                               : 'Facture',
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../services/auth_service.dart';
 import '../utils/app_localizations.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -230,13 +233,31 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void _handleLogin() {
-    if (_formKey.currentState!.validate()) {
-      // Show success message
-      ScaffoldMessenger.of(context).showSnackBar(
+  Future<void> _handleLogin() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    FocusScope.of(context).unfocus();
+
+    final authService = context.read<AuthService>();
+    final messenger = ScaffoldMessenger.of(context);
+    final localizations = AppLocalizations.of(context)!;
+
+    try {
+      await authService.login(
+        _emailController.text,
+        _passwordController.text,
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      messenger.showSnackBar(
         SnackBar(
           content: Text(
-            AppLocalizations.of(context)!.language == 'Language'
+            localizations.language == 'Language'
                 ? 'Login successful!'
                 : 'Connexion réussie !',
           ),
@@ -244,8 +265,29 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       );
 
-      // Navigate back to home
-      Navigator.pop(context);
+      Navigator.of(context).pop();
+    } on AuthException catch (error) {
+      final errorText = localizations.language == 'Language'
+          ? error.message
+          : 'E-mail ou mot de passe invalide.';
+
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(errorText),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } catch (_) {
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(
+            localizations.language == 'Language'
+                ? 'Something went wrong. Please try again.'
+                : 'Une erreur est survenue. Veuillez réessayer.',
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
