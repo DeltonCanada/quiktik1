@@ -19,6 +19,7 @@ class _FavoritesCounterWidgetState extends ConsumerState<FavoritesCounterWidget>
     with TickerProviderStateMixin {
   late final AnimationController _animationController;
   late final Animation<double> _scaleAnimation;
+  ProviderSubscription<FavoritesService>? _favoritesSubscription;
 
   @override
   void initState() {
@@ -39,22 +40,27 @@ class _FavoritesCounterWidgetState extends ConsumerState<FavoritesCounterWidget>
       ),
     );
 
-    ref.listen<FavoritesService>(favoritesServiceProvider, (previous, next) {
-      final previousCount = previous?.favoritesCount ?? next.favoritesCount;
-      final currentCount = next.favoritesCount;
+    _favoritesSubscription = ref.listenManual<FavoritesService>(
+      favoritesServiceProvider,
+      (previous, next) {
+        final previousCount = previous?.favoritesCount ?? next.favoritesCount;
+        final currentCount = next.favoritesCount;
 
-      if (currentCount != previousCount && mounted) {
-        _animationController.forward(from: 0).then((_) {
-          if (mounted) {
-            _animationController.reverse();
-          }
-        });
-      }
-    });
+        if (currentCount != previousCount && mounted) {
+          _animationController.forward(from: 0).then((_) {
+            if (mounted) {
+              _animationController.reverse();
+            }
+          });
+        }
+      },
+      fireImmediately: true,
+    );
   }
 
   @override
   void dispose() {
+    _favoritesSubscription?.close();
     _animationController.dispose();
     super.dispose();
   }

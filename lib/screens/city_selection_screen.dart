@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../utils/app_localizations.dart';
 import '../models/location_models.dart';
+import '../core/di/app_providers.dart';
 import 'payment_screen.dart';
 
 class CitySelectionScreen extends StatelessWidget {
@@ -268,38 +271,154 @@ class CitySelectionScreen extends StatelessWidget {
 
     showModalBottomSheet(
       context: context,
-      builder: (BuildContext context) {
-        return Container(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Choose a location in ${city.name}',
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              const SizedBox(height: 16),
-              for (final establishment in establishments)
-                ListTile(
-                  leading: const Icon(Icons.location_on),
-                  title: Text(establishment.name),
-                  subtitle: Text(establishment.address),
-                  trailing: const Icon(Icons.arrow_forward_ios),
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PaymentScreen(
-                          establishment: establishment,
+      isScrollControlled: true,
+      builder: (BuildContext bottomSheetContext) {
+        return Consumer(
+          builder: (context, ref, _) {
+            final favoritesService = ref.watch(favoritesServiceProvider);
+            final localizations = AppLocalizations.of(context)!;
+            final maxHeight = MediaQuery.of(context).size.height * 0.6;
+
+            return SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.location_on,
+                          color: Theme.of(context).primaryColor,
                         ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            localizations.language == 'Language'
+                                ? 'Choose a location in ${city.name}'
+                                : 'Choisissez un établissement à ${city.name}',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    ConstrainedBox(
+                      constraints: BoxConstraints(maxHeight: maxHeight),
+                      child: ListView.separated(
+                        shrinkWrap: true,
+                        itemCount: establishments.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 8),
+                        itemBuilder: (context, index) {
+                          final establishment = establishments[index];
+                          final isFavorite =
+                              favoritesService.isFavorite(establishment.id);
+
+                          return Card(
+                            elevation: 1,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: ListTile(
+                              leading: CircleAvatar(
+                                backgroundColor: Theme.of(context)
+                                    .primaryColor
+                                    .withValues(alpha: 0.1),
+                                child: Icon(
+                                  establishment.isOpen
+                                      ? Icons.store
+                                      : Icons.store_mall_directory,
+                                  color: establishment.status.color,
+                                ),
+                              ),
+                              title: Text(
+                                establishment.name,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(establishment.address),
+                                  const SizedBox(height: 4),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 2,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: establishment.status.color
+                                          .withValues(alpha: 0.1),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Text(
+                                      establishment.status.getDisplayText(
+                                        localizations.language == 'Language'
+                                            ? 'en'
+                                            : 'fr',
+                                      ),
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        color: establishment.status.color,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: Icon(
+                                      isFavorite
+                                          ? Icons.star
+                                          : Icons.star_border,
+                                    ),
+                                    color: isFavorite
+                                        ? Colors.amber
+                                        : Colors.grey[500],
+                                    tooltip: isFavorite
+                                        ? localizations.removeFromFavorites
+                                        : localizations.addToFavorites,
+                                    onPressed: () {
+                                      ref
+                                          .read(favoritesServiceProvider)
+                                          .toggleFavorite(establishment);
+                                    },
+                                  ),
+                                  const Icon(
+                                    Icons.arrow_forward_ios,
+                                    size: 16,
+                                  ),
+                                ],
+                              ),
+                              onTap: () {
+                                Navigator.pop(context);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => PaymentScreen(
+                                      establishment: establishment,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          );
+                        },
                       ),
-                    );
-                  },
+                    ),
+                  ],
                 ),
-            ],
-          ),
+              ),
+            );
+          },
         );
       },
     );
