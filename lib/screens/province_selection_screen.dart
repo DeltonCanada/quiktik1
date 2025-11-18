@@ -1,24 +1,30 @@
 import 'package:flutter/material.dart';
-import '../utils/app_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../core/di/app_providers.dart';
 import '../models/location_models.dart';
+import '../services/favorites_service.dart';
 import '../services/location_data_service.dart';
+import '../utils/app_localizations.dart';
 import 'city_selection_screen.dart';
 
-class ProvinceSelectionScreen extends StatefulWidget {
+class ProvinceSelectionScreen extends ConsumerStatefulWidget {
   const ProvinceSelectionScreen({super.key});
 
   @override
-  State<ProvinceSelectionScreen> createState() =>
+  ConsumerState<ProvinceSelectionScreen> createState() =>
       _ProvinceSelectionScreenState();
 }
 
-class _ProvinceSelectionScreenState extends State<ProvinceSelectionScreen> {
-  final LocationDataService _dataService = LocationDataService();
-  List<Province> _provinces = [];
+class _ProvinceSelectionScreenState
+    extends ConsumerState<ProvinceSelectionScreen> {
+  late final LocationDataService _dataService;
+  late List<Province> _provinces;
 
   @override
   void initState() {
     super.initState();
+    _dataService = ref.read(locationDataServiceProvider);
     _dataService.initializeData();
     _provinces = _dataService.getProvincesWithEstablishments();
   }
@@ -26,6 +32,7 @@ class _ProvinceSelectionScreenState extends State<ProvinceSelectionScreen> {
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
+    final favoritesService = ref.watch(favoritesServiceProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -86,7 +93,7 @@ class _ProvinceSelectionScreenState extends State<ProvinceSelectionScreen> {
           Expanded(
             child: _provinces.isEmpty
                 ? _buildEmptyState(localizations)
-                : _buildProvinceList(),
+                : _buildProvinceList(favoritesService),
           ),
         ],
       ),
@@ -118,18 +125,32 @@ class _ProvinceSelectionScreenState extends State<ProvinceSelectionScreen> {
     );
   }
 
-  Widget _buildProvinceList() {
+  Widget _buildProvinceList(FavoritesService favoritesService) {
     return ListView.builder(
       padding: const EdgeInsets.all(16.0),
       itemCount: _provinces.length,
       itemBuilder: (context, index) {
         final province = _provinces[index];
-        return _buildProvinceCard(province);
+        final cityIds = province.cities.map((city) => city.id).toSet();
+        final provinceFavorites = favoritesService.favorites
+            .where((establishment) => cityIds.contains(establishment.cityId))
+            .toList();
+
+        return _buildProvinceCard(
+          province,
+          favoriteCount: provinceFavorites.length,
+          hasOpenFavorite: provinceFavorites
+              .any((establishment) => establishment.status == EstablishmentStatus.open),
+        );
       },
     );
   }
 
-  Widget _buildProvinceCard(Province province) {
+  Widget _buildProvinceCard(
+    Province province, {
+    required int favoriteCount,
+    required bool hasOpenFavorite,
+  }) {
     final totalEstablishments = province.cities
         .map((city) => city.establishments.length)
         .fold(0, (prev, count) => prev + count);
@@ -232,6 +253,55 @@ class _ProvinceSelectionScreenState extends State<ProvinceSelectionScreen> {
                             color: Colors.grey[500],
                           ),
                         ),
+                        if (favoriteCount > 0) ...[
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: (hasOpenFavorite
+                                      ? Colors.amber
+                                      : Colors.blueGrey)
+                                  .withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: hasOpenFavorite
+                                    ? Colors.amber
+                                    : Colors.blueGrey,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  hasOpenFavorite
+                                      ? Icons.star
+                                      : Icons.star_border,
+                                  size: 14,
+                                  color: hasOpenFavorite
+                                      ? Colors.amber
+                                      : Colors.blueGrey,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  AppLocalizations.of(context)!.language ==
+                                          'Language'
+                                      ? '$favoriteCount favorite${favoriteCount == 1 ? '' : 's'}'
+                                      : '$favoriteCount favori${favoriteCount == 1 ? '' : 's'}',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: hasOpenFavorite
+                                        ? Colors.amber.shade800
+                                        : Colors.blueGrey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ],
